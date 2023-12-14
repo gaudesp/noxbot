@@ -22,7 +22,9 @@ async def send_waven_patchnotes(bot):
     for patchnote in patchnotes_found[::-1]:
       embed = Embed().for_waven_patchnotes(patchnote)
       for server in server_model.find_all():
-        await bot.get_channel(int(server['waven_channel'])).send(embed = embed)
-        logger.log(f"Patchnotes {patchnote['title']} sent to {server['name']}")
+        channel = bot.get_channel(int(server['waven_channel']))
+        if channel:
+          await channel.send(embed = embed)
+          logger.log(f"Patchnotes {patchnote['title']} sent to {server['name']}")
   else:
     logger.log('No new patchnotes found on Waven')
