@@ -71,5 +71,12 @@ class WavenPatchnoteParser:
   def format_result(self):
     if None not in (self.title, self.url, self.date):
       self.url = f"https://forum.waven-game.com{self.url}"
-      self.date = datetime.strptime(self.date, '%B %d, %Y, %H:%M:%S').strftime("%d/%m/%Y")
+      self.date = self.format_date().strftime("%d/%m/%Y")
+      
       return {'title': self.title, 'url': self.url, 'date': self.date}
+
+  def format_date(self):
+    if 'Today' in self.date:
+      return datetime.now()
+    
+    return datetime.strptime(self.date, '%B %d, %Y, %H:%M:%S')
