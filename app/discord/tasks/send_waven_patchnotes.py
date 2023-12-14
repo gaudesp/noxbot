@@ -2,11 +2,13 @@ from config import Setting
 from lib.file import File
 from lib.logging import Logger
 from lib.discord.embed import Embed
+from models.discord.server import DiscordServer
 from models.waven.patchnote import WavenPatchnote
 from app.parsers.waven_patchnote_parser import WavenPatchnoteParser
 
 setting = Setting()
 patchnote_model = WavenPatchnote()
+server_model = DiscordServer()
 logger = Logger('waven')
 
 async def send_waven_patchnotes(bot):
@@ -15,17 +17,14 @@ async def send_waven_patchnotes(bot):
   patchnotes_found = patchnote_parser.find_patchnotes()
 
   if patchnotes_found:
-    logger_message = f"{len(patchnotes_found)} new patchnotes found on Waven"
-    logger.log(logger_message)
-    await bot.get_channel(setting.LOGGER_CHANNEL).send(logger_message)
+    logger.log(f"{len(patchnotes_found)} new patchnotes found on Waven")
 
     for patchnote in patchnotes_found[::-1]:
       embed = Embed().for_waven_patchnotes(patchnote)
-
-      await bot.get_channel(setting.WAVEN_CHANNEL).send(embed = embed)
-      logger.log(f"Patchnotes {patchnote['title']} sent on channel")
+      for server in server_model.find_all():
+        channel = bot.get_channel(int(server['waven_channel']))
+        if channel:
+          await channel.send(embed = embed)
+          logger.log(f"Patchnotes {patchnote['title']} sent to {server['name']}")
   else:
-    logger_message = 'No new patchnotes found on Waven'
-    logger.log(logger_message)
-
-    await bot.get_channel(setting.LOGGER_CHANNEL).send(logger_message)
+    logger.log('No new patchnotes found on Waven')
