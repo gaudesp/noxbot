@@ -13,8 +13,7 @@ logger = Logger('waven')
 
 async def send_waven_patchnotes(bot):
   data = File('fixtures/waven/patchnote.html').read()
-  patchnote_parser = WavenPatchnoteParser(data)
-  patchnotes_found = patchnote_parser.find_patchnotes()
+  patchnotes_found = WavenPatchnoteParser(data).find_patchnotes()
 
   if patchnotes_found:
     logger.log(f"{len(patchnotes_found)} new patchnotes found on Waven")

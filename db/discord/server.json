@@ -3,12 +3,17 @@
     {
       "name": "Nox Studio",
       "discord": "948707982663876618",
-      "waven_channel": "1182072278427652146"
+      "waven_channel": "1181234569345761280"
     },
     {
       "name": "Nox Test",
       "discord": "1184983428534374410",
       "waven_channel": "1185003748041433261"
+    },
+    {
+      "name": "La Shecte",
+      "discord": "1145357040563273839",
+      "waven_channel": "1157046947878801509"
     }
   ]
 }
