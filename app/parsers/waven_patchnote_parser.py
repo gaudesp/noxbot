@@ -72,6 +72,8 @@ class WavenPatchnoteParser:
     if None not in (self.title, self.url, self.date):
       self.url = f"https://forum.waven-game.com{self.url}"
       self.date = self.format_date().strftime("%d/%m/%Y")
+      first, remainder = self.title.split(None, maxsplit = 1)
+      self.title = f"{first.capitalize()} {remainder}"
       
       return {'title': self.title, 'url': self.url, 'date': self.date}
 
