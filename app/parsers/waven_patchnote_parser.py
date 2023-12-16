@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from lib.logging import Logger
 from models.waven.patchnote import WavenPatchnote
@@ -34,8 +34,8 @@ class WavenPatchnoteParser:
       element = self.find_columns(row)
       if element and 'version' in element['title'].lower() \
         and 'alpha' not in element['title'].lower() \
-        and int(self.reply) > 0 \
-        and element not in patchnote_model.find_all():
+        and int(self.reply) > 0:
+        if not any(element['title'] in dict.values() for dict in patchnote_model.find_all()):
           logger.log(element)
           self.patchnotes.append(element)
 
@@ -78,7 +78,9 @@ class WavenPatchnoteParser:
       return {'title': self.title, 'url': self.url, 'date': self.date}
 
   def format_date(self):
-    if 'Today' in self.date:
+    if 'today' in self.date.lower():
       return datetime.now()
+    elif 'yesterday' in self.date.lower():
+      return datetime.now() - timedelta(days = 1)
     
     return datetime.strptime(self.date, '%B %d, %Y, %H:%M:%S')
