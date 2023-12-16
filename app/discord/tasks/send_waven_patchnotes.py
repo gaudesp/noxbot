@@ -26,6 +26,6 @@ async def send_waven_patchnotes(bot):
         if channel:
           await channel.send(embed = embed)
           logger.log(f"Patchnotes {patchnote['title']} sent to {server['name']}")
-          await asyncio.sleep(420)
+      await asyncio.sleep(420)
   else:
     logger.log('No new patchnotes found on Waven')
