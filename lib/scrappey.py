@@ -27,7 +27,8 @@ class Scrapper:
   def destroy_session(self):
     self.scrappey.destroy_session(self.sessionData)
     logger.log(f"Session {self.sessionData['session']} destroyed")
-  
+    
+  #je trouve pas ça très intuitif que le get_data fasse aussi la destruction de la session alors qu'il ne fait pas également la creation
   async def get_data(self, url):
     logger.log(f"Scrapping data from {url}")
     data = self.scrappey.get({ 'session': self.session, 'url': url })
