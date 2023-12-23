@@ -18,6 +18,7 @@ class File:
     logger.log(f"Storing data to {self.path}")
     with open(self.path, 'w') as outfile: 
       self.write(data, outfile)
+    #le mot clé "with" fait en sorte de fermer automatiquement le fichier ? dans le cas contraire, petite fuite mémoire
 
   def load(self, file):
     if 'application/json' in self.content_type:
