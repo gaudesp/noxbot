@@ -4,7 +4,7 @@ class WavenPatchnote:
   def __init__(self):
     self.storage = './db/waven/patchnote.json'
     self.data = File(self.storage).read()
-
+#find_all et count dupliqué depuis "discord/server.py"
   def find_all(self):
     if self.data['list'] is None:
       return []

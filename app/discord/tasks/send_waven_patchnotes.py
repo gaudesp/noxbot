@@ -27,5 +27,6 @@ async def send_waven_patchnotes(bot):
           await channel.send(embed = embed)
           logger.log(f"Patchnotes {patchnote['title']} sent to {server['name']}")
       await asyncio.sleep(420)
+      #c'est une convention python les 420 ou t'as pris un chiffre random ?
   else:
     logger.log('No new patchnotes found on Waven')
