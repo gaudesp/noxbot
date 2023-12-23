@@ -10,6 +10,7 @@ logger = Logger('client')
 class Client():
   def __init__(self):
     self.bot = discord.Client(intents = discord.Intents.all())
+    #c'est un peu perturbant d'avoir une propriété on_ready ET une fonction on_ready
     self.on_ready = self.bot.event(self.on_ready)
     self.setup_hook = self.bot.event(self.setup_hook)
   
@@ -23,7 +24,8 @@ class Client():
   async def setup_hook(self):
     logger.log(f"Starting Discord BOT in {setting.BOT_ENV} mode")
     await scrape_waven_patchnotes()
-    
+
+  #tu as un start mais pas de stop ?
   def start(self):
     self.bot.run(setting.DISCORD_TOKEN)
   
