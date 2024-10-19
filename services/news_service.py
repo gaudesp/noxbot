@@ -17,8 +17,8 @@ class NewsService:
         await self._check_news_for_games(app_id, game_instances)
 
     async def get_last_news(self, game, check_last_news=False):
-        game_instance = GameSchema.model_validate(game)
-        await self._check_news_for_games(game.app_id, [game_instance], check_last_news)
+      game_instance = GameSchema.model_validate(game)
+      return await self._check_news_for_games(game.app_id, [game_instance], check_last_news)
 
     async def update_last_news(self, app_id, guild_id):
       news = await self.steam_service.get_game_news(app_id)
@@ -27,12 +27,15 @@ class NewsService:
 
     async def _check_news_for_games(self, app_id, game_instances, check_last_news=True):
       news = await self.steam_service.get_game_news(app_id)
+      has_news = False
       if news and 'gid' in news:
         for game in game_instances:
           if not check_last_news or news['gid'] != game.last_news_id:
             channel = self._get_channel(game.channel_id)
             if channel:
               await self._send_last_news(news, game.app_id, game.guild_id, channel, game.game_name)
+              has_news = True
+      return has_news
 
     async def _send_last_news(self, news, app_id, guild_id, channel, game_name):
       image_url = await self._get_image_url(news, app_id)
