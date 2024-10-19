@@ -1,10 +1,10 @@
-# src/cogs/commands.py
+# src/cogs/commands/__init__.py
 from discord.ext import commands as cmd
-from src.commands.add_game import AddGameCommand
-from src.commands.del_game import DelGameCommand
-from src.commands.list_games import ListGamesCommand
-from src.commands.last_news import LastNewsCommand
-from src.commands.reset_games import ResetGamesCommand
+from src.cogs.commands.add_game import AddGameCommand
+from src.cogs.commands.del_game import DelGameCommand
+from src.cogs.commands.list_games import ListGamesCommand
+from src.cogs.commands.last_news import LastNewsCommand
+from src.cogs.commands.reset_games import ResetGamesCommand
 
 class CommandsCogs(cmd.Cog):
   def __init__(self, bot):

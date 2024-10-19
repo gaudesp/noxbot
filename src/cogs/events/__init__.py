@@ -1,6 +1,6 @@
-# src/cogs/events.py
+# src/cogs/events/__init__.py
 from discord.ext import commands
-from src.events.on_ready import OnReadyEvent
+from src.cogs.events.on_ready import OnReadyEvent
 
 class EventsCogs(commands.Cog):
   def __init__(self, bot):
