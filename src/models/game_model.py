@@ -1,4 +1,4 @@
-# models/game_model.py
+# src/models/game_model.py
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 

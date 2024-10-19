@@ -1,4 +1,4 @@
-# helpers/autocomplete_helper.py
+# src/helpers/autocomplete_helper.py
 import discord
 from discord import app_commands
 from src.repositories import game_repository

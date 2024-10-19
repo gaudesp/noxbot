@@ -1,4 +1,4 @@
-# schemas/game_schema.py
+# src/schemas/game_schema.py
 from pydantic import BaseModel
 from typing import Optional
 

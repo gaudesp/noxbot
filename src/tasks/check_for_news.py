@@ -1,4 +1,4 @@
-# tasks/check_for_news.py
+# src/tasks/check_for_news.py
 from discord.ext import tasks
 from config import CHECK_INTERVAL
 from src.services.news_service import NewsService

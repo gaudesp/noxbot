@@ -1,4 +1,4 @@
-# helpers/news_helper.py
+# src/helpers/news_helper.py
 from bs4 import BeautifulSoup
 import re
 

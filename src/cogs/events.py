@@ -1,4 +1,4 @@
-# cogs/events.py
+# src/cogs/events.py
 from discord.ext import commands
 from src.events.on_ready import OnReadyEvent
 

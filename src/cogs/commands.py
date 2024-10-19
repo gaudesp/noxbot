@@ -1,4 +1,4 @@
-# cogs/commands.py
+# src/cogs/commands.py
 from discord.ext import commands as cmd
 from src.commands.add_game import AddGameCommand
 from src.commands.del_game import DelGameCommand

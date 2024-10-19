@@ -1,4 +1,4 @@
-# services/steam_services.py
+# src/services/steam_services.py
 import aiohttp
 from config import STEAM_API_KEY
 from src.utils.logger import logger

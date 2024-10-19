@@ -1,4 +1,4 @@
-# repositories/game_repository.py
+# src/repositories/game_repository.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from config import DB_PATH

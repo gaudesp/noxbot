@@ -1,4 +1,4 @@
-# commands/add_game.py
+# src/commands/add_game.py
 import traceback
 import discord
 from discord.ext import commands

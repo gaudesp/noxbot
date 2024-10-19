@@ -1,4 +1,4 @@
-# events/on_ready.py
+# src/events/on_ready.py
 from discord.ext import commands
 from src.repositories import game_repository
 from src.tasks.check_for_news import check_for_news
