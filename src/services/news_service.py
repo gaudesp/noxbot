@@ -1,10 +1,9 @@
 from collections import defaultdict
-from helpers.news_helper import extract_image_urls
-from embeds.news_embed import NewsEmbed
-from services.steam_service import SteamService
-from repositories import game_repository
-from schemas.game_schema import GameSchema
-from utils.logger import logger
+from src.helpers.news_helper import extract_image_urls
+from src.embeds.news_embed import NewsEmbed
+from src.services.steam_service import SteamService
+from src.repositories import game_repository
+from src.schemas.game_schema import GameSchema
 
 class NewsService:
     def __init__(self, bot):

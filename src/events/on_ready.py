@@ -1,8 +1,8 @@
 # events/on_ready.py
 from discord.ext import commands
-from repositories import game_repository
-from tasks.check_for_news import check_for_news
-from utils.logger import logger
+from src.repositories import game_repository
+from src.tasks.check_for_news import check_for_news
+from src.utils.logger import logger
 
 class OnReadyEvent(commands.Cog):
   def __init__(self, bot):

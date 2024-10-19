@@ -3,11 +3,11 @@ import traceback
 import discord
 from discord.ext import commands
 from discord import app_commands
-from repositories import game_repository
-from services.steam_service import SteamService
-from services.news_service import NewsService
-from helpers.autocomplete_helper import game_app_id_autocomplete
-from utils.logger import logger
+from src.repositories import game_repository
+from src.services.steam_service import SteamService
+from src.services.news_service import NewsService
+from src.helpers.autocomplete_helper import game_app_id_autocomplete
+from src.utils.logger import logger
 
 class AddGameCommand(commands.Cog):
   def __init__(self, bot):
