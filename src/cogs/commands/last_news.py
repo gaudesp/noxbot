@@ -1,4 +1,4 @@
-# src/commands/last_news.py
+# src/cogs/commands/last_news.py
 import traceback
 import discord
 from discord import app_commands

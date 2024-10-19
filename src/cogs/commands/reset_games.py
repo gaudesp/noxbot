@@ -1,4 +1,4 @@
-# src/commands/reset_game.py
+# src/cogs/commands/reset_game.py
 import traceback
 import discord
 from discord import app_commands

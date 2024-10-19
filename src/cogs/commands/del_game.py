@@ -1,4 +1,4 @@
-# src/commands/del_game.py
+# src/cogs/commands/del_game.py
 import traceback
 import discord
 from discord import app_commands
