@@ -6,5 +6,5 @@ from utils.logger import logger
 
 @tasks.loop(seconds=CHECK_INTERVAL)
 async def check_for_news(bot):
-  await NewsService(bot).check_all_news()
+  await NewsService(bot).get_all_news()
   logger.log("Les actualités Steam ont été vérifiées")

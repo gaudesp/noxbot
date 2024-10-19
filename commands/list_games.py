@@ -1,4 +1,5 @@
 # commands/list_game.py
+import traceback
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -20,5 +21,5 @@ class ListGamesCommand(commands.Cog):
       game_list = '\n'.join([f"**{game.game_name}** (`{game.app_id}`) dans {game.channel}" for game in games])
       await interaction.response.send_message(f"Jeux suivis sur ce serveur:\n{game_list}", ephemeral=True)
     except Exception as e:
-      logger.log("Erreur lors de la liste des jeux:", e, "error")
-      await interaction.response.send_message("Une erreur est survenue lors de la récupération des jeux suivis.", ephemeral=True)
+      logger.log(f"Une erreur est survenue: {str(e)}\n{traceback.format_exc()}", "error")
+      await interaction.response.send_message("Une erreur est survenue.", ephemeral=True)

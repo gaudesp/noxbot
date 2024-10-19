@@ -15,11 +15,12 @@ class OnReadyEvent(commands.Cog):
     await check_for_news.start(self.bot)
 
   async def sync_commands(self):
-    try:
-      synced = await self.bot.tree.sync()
-      logger.log(f'{len(synced)} commande(s) synchronisée(s)')
-    except Exception as e:
-      logger.log(f"Erreur lors de la synchronisation des commandes: {e}", "error")
+    synced = await self.bot.tree.sync()
+    command_names = [command.name for command in synced]
+    logger.log(f'{len(synced)} commande(s) synchronisée(s) : {', '.join(command_names)}', "info")
 
   async def initialize_db(self):
     game_repository.init_db()
+    games = {(game.app_id, game.game_name) for game in game_repository.get_all_games()}
+    games_info = ', '.join(f'{name} (ID: {app_id})' for app_id, name in games)
+    logger.log(f"{len(games)} jeu(x) suivi(s) : {games_info}", "info")
