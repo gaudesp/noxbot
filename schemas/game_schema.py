@@ -10,4 +10,4 @@ class GameSchema(BaseModel):
   last_news_id: Optional[str] = None
 
   class Config:
-    orm_mode = True
+    from_attributes = True

@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 from repositories import game_repository
 from services.news_service import NewsService
-from utils.autocomplete import game_name_autocomplete
+from helpers.autocomplete_helper import game_name_autocomplete
 from utils.logger import logger
 
 class LastNewsCommand(commands.Cog):
@@ -20,10 +20,13 @@ class LastNewsCommand(commands.Cog):
     try:
       game = game_repository.get_game_for_guild(app_id, interaction.guild.id)
       if game:
-        await NewsService(self.bot).get_last_news(game.app_id, game.guild_id, game.channel_id, game.game_name, game.last_news_id, check_last_news=False)
-        await interaction.response.send_message(f"La dernière actualité du jeu **{game.game_name}** a été publiée dans le channel {game.channel}.", ephemeral=True)
+        news = await NewsService(self.bot).get_last_news(game)
+        if news:
+          await interaction.response.send_message(f"La dernière actualité du jeu **{game.game_name}** a été publiée dans le channel {game.channel}.", ephemeral=True)
+        else:
+          await interaction.response.send_message(f"Aucune nouvelle actualité n'a été trouvée pour le jeu **{game.game_name}**.", ephemeral=True)
       else:
         await interaction.response.send_message(f"Impossible de trouver un jeu avec l'AppID `{app_id}`.", ephemeral=True)
     except Exception as e:
-      logger.log(f"Erreur lors de la publication de l'actualité: {str(e)}\n{traceback.format_exc()}", "error")
+      logger.log(f"Une erreur est survenue: {str(e)}\n{traceback.format_exc()}", "error")
       await interaction.response.send_message("Une erreur est survenue.", ephemeral=True)
