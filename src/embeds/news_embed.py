@@ -4,13 +4,14 @@ from datetime import datetime
 from src.helpers.news_helper import clean_news_content
 
 class NewsEmbed:
-  def __init__(self, title, url, description, published_date=None, game_name=None, image_url=None, color=discord.Color.blue()):
+  def __init__(self, title, url, description, published_date=None, game_name=None, image_url=None, small_image_url=None, color=discord.Color.blue()):
     self.title = title
     self.url = url
     self.description = self._clean_description(description)
     self.published_date = self._format_date(published_date)
     self.game_name = game_name
     self.image_url = image_url
+    self.small_image_url = small_image_url
     self.color = color
 
   def _clean_description(self, description):
@@ -33,6 +34,8 @@ class NewsEmbed:
       embed.set_author(name=self.game_name)
     if self.image_url:
       embed.set_image(url=self.image_url)
+    if self.small_image_url:
+      embed.set_thumbnail(url=self.small_image_url)
     if self.published_date:
       embed.set_footer(text=f"Publié le {self.published_date}")
     return embed
