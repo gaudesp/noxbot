@@ -40,9 +40,8 @@ class NewsService:
 
     async def _send_last_news(self, news, app_id, guild_id, channel, game_name):
       image_url = await self._get_image_url(news, app_id)
-      small_image_url = f"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/{app_id}/capsule_184x69.jpg"
       published_date = self._extract_published_date(news)
-      embed = self._create_news_embed(news, game_name, image_url, published_date, small_image_url)
+      embed = self._create_news_embed(news, game_name, image_url, published_date)
       await channel.send(embed=embed)
       game_repository.update_last_news_id(app_id, guild_id, news.get('gid'))
 
@@ -51,15 +50,14 @@ class NewsService:
       image_urls = extract_image_urls(contents)
       return image_urls[0] if image_urls else await self.steam_service.get_game_image_url(app_id)
 
-    def _create_news_embed(self, news, game_name, image_url, published_date, small_image_url):
+    def _create_news_embed(self, news, game_name, image_url, published_date):
       return NewsEmbed(
         title=news.get('title'),
         url=news.get('url'),
         description=news.get('contents'),
         published_date=published_date,
         game_name=game_name,
-        image_url=image_url,
-        small_image_url=small_image_url
+        image_url=image_url
       ).create()
 
     def _group_games_by_app_id(self):
