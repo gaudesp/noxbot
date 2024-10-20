@@ -8,6 +8,7 @@ class OnReadyEvent(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
 
+  @commands.Cog.listener()
   async def on_ready(self):
     logger.log(f'{self.bot.user} est prêt et en ligne.')
     await self.__sync_commands()
