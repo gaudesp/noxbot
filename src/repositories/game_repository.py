@@ -1,8 +1,8 @@
-# repositories/game_repository.py
+# src/repositories/game_repository.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from config import DB_PATH
-from models.game_model import GameModel
+from src.models.game_model import GameModel
 
 engine = create_engine(f'sqlite:///{DB_PATH}')
 Session = sessionmaker(bind=engine)

@@ -1,10 +1,10 @@
-# commands/list_game.py
+# src/cogs/commands/list_game.py
 import traceback
 import discord
 from discord import app_commands
 from discord.ext import commands
-from repositories import game_repository
-from utils.logger import logger
+from src.repositories import game_repository
+from src.utils.logger import logger
 
 class ListGamesCommand(commands.Cog):
   def __init__(self, bot):

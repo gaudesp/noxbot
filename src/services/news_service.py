@@ -1,10 +1,11 @@
+# src/services/news_service.py
 from collections import defaultdict
-from helpers.news_helper import extract_image_urls
-from embeds.news_embed import NewsEmbed
-from services.steam_service import SteamService
-from repositories import game_repository
-from schemas.game_schema import GameSchema
-from utils.logger import logger
+from datetime import datetime
+from src.helpers.news_helper import extract_image_urls
+from src.embeds.news_embed import NewsEmbed
+from src.services.steam_service import SteamService
+from src.repositories import game_repository
+from src.schemas.game_schema import GameSchema
 
 class NewsService:
     def __init__(self, bot):
@@ -23,14 +24,14 @@ class NewsService:
     async def update_last_news(self, app_id, guild_id):
       news = await self.steam_service.get_game_news(app_id)
       if news and 'gid' in news:
-        game_repository.update_last_news_id(app_id, guild_id, news['gid'])
+        game_repository.update_last_news_id(app_id, guild_id, news.get('gid'))
 
     async def _check_news_for_games(self, app_id, game_instances, check_last_news=True):
       news = await self.steam_service.get_game_news(app_id)
       has_news = False
       if news and 'gid' in news:
         for game in game_instances:
-          if not check_last_news or news['gid'] != game.last_news_id:
+          if not check_last_news or news.get('gid') != game.last_news_id:
             channel = self._get_channel(game.channel_id)
             if channel:
               await self._send_last_news(news, game.app_id, game.guild_id, channel, game.game_name)
@@ -39,20 +40,22 @@ class NewsService:
 
     async def _send_last_news(self, news, app_id, guild_id, channel, game_name):
       image_url = await self._get_image_url(news, app_id)
-      embed = self._create_news_embed(news, game_name, image_url)
+      published_date = self._extract_published_date(news)
+      embed = self._create_news_embed(news, game_name, image_url, published_date)
       await channel.send(embed=embed)
-      game_repository.update_last_news_id(app_id, guild_id, news['gid'])
+      game_repository.update_last_news_id(app_id, guild_id, news.get('gid'))
 
     async def _get_image_url(self, news, app_id):
-      contents = news['contents']
+      contents = news.get('contents')
       image_urls = extract_image_urls(contents)
       return image_urls[0] if image_urls else await self.steam_service.get_game_image_url(app_id)
 
-    def _create_news_embed(self, news, game_name, image_url):
+    def _create_news_embed(self, news, game_name, image_url, published_date):
       return NewsEmbed(
-        title=news['title'],
-        url=news['url'],
-        description=news['contents'],
+        title=news.get('title'),
+        url=news.get('url'),
+        description=news.get('contents'),
+        published_date=published_date,
         game_name=game_name,
         image_url=image_url
       ).create()
@@ -66,3 +69,7 @@ class NewsService:
 
     def _get_channel(self, channel_id):
       return self.bot.get_channel(int(channel_id))
+
+    def _extract_published_date(self, news):
+      timestamp = news.get('date')
+      return datetime.fromtimestamp(timestamp) if timestamp else None

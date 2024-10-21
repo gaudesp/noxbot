@@ -1,11 +1,11 @@
-# commands/del_game.py
+# src/cogs/commands/del_game.py
 import traceback
 import discord
 from discord import app_commands
 from discord.ext import commands
-from repositories import game_repository
-from helpers.autocomplete_helper import game_name_autocomplete
-from utils.logger import logger
+from src.repositories import game_repository
+from src.helpers.autocomplete_helper import game_name_autocomplete
+from src.utils.logger import logger
 
 class DelGameCommand(commands.Cog):
   def __init__(self, bot):

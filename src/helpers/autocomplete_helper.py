@@ -1,8 +1,8 @@
-# helpers/autocomplete_helper.py
+# src/helpers/autocomplete_helper.py
 import discord
 from discord import app_commands
-from repositories import game_repository
-from services.steam_service import SteamService
+from src.repositories import game_repository
+from src.services.steam_service import SteamService
 
 async def game_name_autocomplete(interaction: discord.Interaction, current: str):
   games = game_repository.get_games_for_guild(interaction.guild.id)
