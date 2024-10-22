@@ -22,7 +22,7 @@ class NewsEmbed:
   def _format_date(self, published_date) -> str:
     """Formate la date de publication au format souhaité."""
     if published_date:
-      return published_date.strftime("%d/%m/%Y à %Hh%M")
+      return published_date.strftime("%m/%d/%Y at %I:%M %p")
     return "Date non spécifiée"
 
   def create(self) -> discord.Embed:
@@ -40,5 +40,5 @@ class NewsEmbed:
     if self.small_image_url:
       embed.set_thumbnail(url=self.small_image_url)
     if self.published_date:
-      embed.set_footer(text=f"Publié le {self.published_date}")
+      embed.set_footer(text=f"Posted on {self.published_date}")
     return embed
