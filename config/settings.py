@@ -3,7 +3,8 @@ import os
 from dotenv import load_dotenv
 
 class Settings:
-  def __init__(self):
+  def __init__(self) -> None:
+    """Charge les paramètres de configuration depuis les variables d'environnement."""
     load_dotenv()
     self.check_interval = int(os.getenv('CHECK_INTERVAL', 3600))
     self.db_path = 'sqlite+aiosqlite:///config/database.db'
