@@ -1,19 +1,20 @@
 # src/services/news_service.py
 from collections import defaultdict
 from datetime import datetime
-from src.helpers.news_helper import extract_image_urls
-from src.embeds.news_embed import NewsEmbed
+from utils.helper import extract_image_urls
+from utils.embed import NewsEmbed
 from src.services.steam_service import SteamService
-from src.repositories import game_repository
 from src.schemas.game_schema import GameSchema
+from src.repositories.game_repository import GameRepository
 
 class NewsService:
     def __init__(self, bot):
       self.bot = bot
+      self.game_repository = GameRepository(bot)
       self.steam_service = SteamService()
 
     async def get_all_news(self):
-      games_by_app_id = self._group_games_by_app_id()
+      games_by_app_id = await self._group_games_by_app_id()
       for app_id, game_instances in games_by_app_id.items():
         await self._check_news_for_games(app_id, game_instances)
 
@@ -24,7 +25,7 @@ class NewsService:
     async def update_last_news(self, app_id, guild_id):
       news = await self.steam_service.get_game_news(app_id)
       if news and 'gid' in news:
-        game_repository.update_last_news_id(app_id, guild_id, news.get('gid'))
+        await self.game_repository.update_last_news_id(app_id, guild_id, news.get('gid'))
 
     async def _check_news_for_games(self, app_id, game_instances, check_last_news=True):
       news = await self.steam_service.get_game_news(app_id)
@@ -43,7 +44,7 @@ class NewsService:
       published_date = self._extract_published_date(news)
       embed = self._create_news_embed(news, game_name, image_url, published_date)
       await channel.send(embed=embed)
-      game_repository.update_last_news_id(app_id, guild_id, news.get('gid'))
+      await self.game_repository.update_last_news_id(app_id, guild_id, news.get('gid'))
 
     async def _get_image_url(self, news, app_id):
       contents = news.get('contents')
@@ -60,9 +61,9 @@ class NewsService:
         image_url=image_url
       ).create()
 
-    def _group_games_by_app_id(self):
+    async def _group_games_by_app_id(self):
       games_by_app_id = defaultdict(list)
-      games = game_repository.get_all_games()
+      games = await self.game_repository.get_all_games()
       for game in games:
         games_by_app_id[game.app_id].append(GameSchema.model_validate(game))
       return games_by_app_id

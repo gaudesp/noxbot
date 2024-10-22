@@ -1,7 +1,5 @@
 # src/services/steam_services.py
 import aiohttp
-from config import STEAM_API_KEY
-from src.utils.logger import logger
 
 class SteamService:
   def __init__(self):
@@ -12,14 +10,9 @@ class SteamService:
 
   async def _fetch_json(self, url, params=None):
     async with aiohttp.ClientSession() as session:
-      try:
-        async with session.get(url, params=params) as response:
-          if response.status == 200:
-            return await response.json()
-          else:
-            logger.log(f"Erreur HTTP {response.status} pour l'URL {url}", 'error')
-      except aiohttp.ClientError as e:
-        logger.log(f"Erreur lors de la connexion à {url}: {e}", 'error')
+      async with session.get(url, params=params) as response:
+        if response.status == 200:
+          return await response.json()
     return None
 
   async def get_game_news(self, app_id):

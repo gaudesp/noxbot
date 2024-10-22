@@ -1,10 +1,8 @@
 # src/models/game_model.py
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from db.database import Base
 
-Base = declarative_base()
-
-class GameModel(Base):
+class Game(Base):
   __tablename__ = 'games'
 
   app_id = Column(Integer, primary_key=True)

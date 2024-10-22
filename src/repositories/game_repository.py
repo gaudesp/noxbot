@@ -1,61 +1,46 @@
 # src/repositories/game_repository.py
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from config import DB_PATH
-from src.models.game_model import GameModel
+from src.models.game_model import Game as GameModel
+from sqlalchemy import update, delete
+from sqlalchemy.future import select
+from utils.discord_bot import DiscordBot
 
-engine = create_engine(f'sqlite:///{DB_PATH}')
-Session = sessionmaker(bind=engine)
+class GameRepository:
+  def __init__(self, bot: DiscordBot):
+    self.bot = bot
 
-def init_db():
-  GameModel.__table__.create(bind=engine, checkfirst=True)
-
-def add_game(app_id, guild_id, channel_id, game_name):
-  with Session() as session:
+  async def add_game(self, app_id, guild_id, channel_id, game_name):
     game = GameModel(app_id=app_id, guild_id=guild_id, channel_id=channel_id, game_name=game_name)
-    session.add(game)
-    session.commit()
-    session.refresh(game)
-    return game
+    return await self.bot.database.insert(game)
 
-def get_all_games():
-  with Session() as session:
-    games = session.query(GameModel).all()
-    return games
-
-def get_games_for_guild(guild_id):
-  with Session() as session:
-    games = session.query(GameModel).filter_by(guild_id=guild_id).all()
-    return games
-
-def get_game_for_guild(app_id, guild_id):
-  with Session() as session:
-    game = session.query(GameModel).filter_by(app_id=app_id, guild_id=guild_id).first()
-    return game
-
-def update_last_news_id(app_id, guild_id, news_id):
-  with Session() as session:
-    game = session.query(GameModel).filter_by(app_id=app_id, guild_id=guild_id).first()
-    if game:
-      game.last_news_id = news_id
-      session.commit()
-
-def delete_game(app_id, guild_id):
-  with Session() as session:
-    game = session.query(GameModel).filter_by(app_id=app_id, guild_id=guild_id).first()
-    if game:
-      session.delete(game)
-      session.commit()
-      session.close()
-      return game
-    return None
+  async def get_all_games(self):
+    games = await self.bot.database.execute(select(GameModel))
+    return games.scalars().all()
   
-def delete_all_games(guild_id):
-  with Session() as session:
-    games = session.query(GameModel).filter_by(guild_id=guild_id).all()
-    if games:
-      for game in games:
-        session.delete(game)
-      session.commit()
-      return len(games)
-  return None
+  async def get_game_for_guild(self, app_id, guild_id):
+    game = await self.bot.database.execute(select(GameModel).where(GameModel.app_id == app_id, GameModel.guild_id == guild_id))
+    return game.scalar_one_or_none()
+  
+  async def get_games_for_guild(self, guild_id):
+    games = await self.bot.database.execute(select(GameModel).where(GameModel.guild_id == guild_id))
+    return games.scalars().all()
+
+  async def update_last_news_id(self, app_id, guild_id, news_id):
+    game = await self.get_game_for_guild(app_id, guild_id)
+    if game:
+      await self.bot.database.execute(update(GameModel).where(GameModel.app_id == app_id, GameModel.guild_id == guild_id).values(last_news_id=news_id))
+      return True
+    return False
+
+  async def delete_game(self, app_id, guild_id):
+    game = await self.get_game_for_guild(app_id, guild_id)
+    if game:
+      await self.bot.database.execute(delete(GameModel).where(GameModel.app_id == app_id, GameModel.guild_id == guild_id))
+      return game
+    return False
+
+  async def delete_all_games(self, guild_id):
+    games = await self.get_games_for_guild(guild_id)
+    count_deleted = len(games)
+    if count_deleted > 0:
+      await self.bot.database.execute(delete(GameModel).where(GameModel.guild_id == guild_id))
+    return count_deleted

@@ -1,4 +1,4 @@
-# src/embeds/news_embeds.py
+# utils/embeds.py
 import discord
 from utils.helper import clean_news_content
 

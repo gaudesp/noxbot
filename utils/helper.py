@@ -1,6 +1,6 @@
-# src/helpers/news_helper.py
-from bs4 import BeautifulSoup
+# utils/helper.py
 import re
+from bs4 import BeautifulSoup
 
 def clean_news_content(contents):
   soup = BeautifulSoup(contents, 'html.parser')
