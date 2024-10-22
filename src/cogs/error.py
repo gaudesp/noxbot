@@ -15,7 +15,7 @@ class ErrorCog(commands.Cog):
   @commands.Cog.listener()
   async def on_error(self, event, *args, **kwargs) -> None:
     """Écoute les erreurs inattendues dans les événements."""
-    self.bot.log(f"Unexpected error in event: {event}", "discord.on_error", CRITICAL)
+    self.bot.log(f"Unexpected error in event: {event}, args: {args}, kwargs: {kwargs}", "discord.on_error", CRITICAL)
 
   @commands.Cog.listener()
   async def on_command_error(self, ctx: commands.Context, error: commands.CommandError) -> None:
