@@ -26,8 +26,8 @@ class GameCog(commands.Cog):
     games = {(game.app_id, game.game_name) for game in await self.game_repository.get_all_games()}
     games_info = ', '.join(f'{name} (ID: {app_id})' for app_id, name in games)
     games_total = len(games)
-    self.bot.log(f"{games_total} followed games {':' if games_total > 0 else ''} {games_info}", "discord.on_ready")
-      
+    self.bot.log(f"{games_total} followed games {':' if games_total > 0 else ''} {games_info}", "discord.followed_games")
+
   @tasks.loop(seconds=3600)
   async def check_for_news(self) -> None:
     """Vérifie les actualités des jeux toutes les heures."""

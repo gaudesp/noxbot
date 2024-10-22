@@ -1,8 +1,6 @@
 # .gitignore
+*.log
 *.env
 *venv
 *__pycache__
-db/database.db
-logs/*
-!db/
-*.log
+config/database.db

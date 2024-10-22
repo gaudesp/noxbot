@@ -41,11 +41,11 @@ class DiscordBot(commands.Bot):
     """Prépare le bot après sa connexion à Discord."""
     self.appinfo = await self.application_info()
     await self.wait_until_ready()
+    await self.__init_database()
     await self.__sync_commands()
 
   async def setup_hook(self) -> None:
     """Configurer le bot, y compris la base de données et les extensions."""
-    await self.__init_database()
     await self.__load_extensions()
     self.loop.create_task(self.startup())
 
