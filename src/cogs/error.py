@@ -3,7 +3,7 @@ import traceback
 import discord
 from discord.ext import commands
 from logging import ERROR, CRITICAL
-from utils.discord_bot import DiscordBot
+from src.utils.discord import DiscordBot
 
 class ErrorCog(commands.Cog):
   def __init__(self, bot: DiscordBot) -> None:

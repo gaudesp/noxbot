@@ -4,14 +4,14 @@ import discord
 from discord.ext import commands
 from logging import Logger, INFO
 from typing import TypeVar
-from config import load_config
-from db.database import Database
+from config.settings import Settings
+from config.database import Database
 from discord import __version__ as discord_version
 
 Self = TypeVar("Self", bound="DiscordBot")
 
 class DiscordBot(commands.Bot):
-  config: dict = load_config()
+  settings: Settings
   logger: Logger
   database: Database
   uptime: datetime = datetime.now()

@@ -1,11 +1,11 @@
 # src/services/news_service.py
 from collections import defaultdict
 from datetime import datetime
-from utils.helper import extract_image_urls
-from utils.embed import NewsEmbed
-from src.services.steam_service import SteamService
-from src.schemas.game_schema import GameSchema
-from src.repositories.game_repository import GameRepository
+from src.utils.helper import extract_image_urls
+from src.utils.embed import NewsEmbed
+from src.services.steam import SteamService
+from src.schemas.game import GameSchema
+from src.repositories.game import GameRepository
 
 class NewsService:
     def __init__(self, bot):

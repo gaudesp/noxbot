@@ -1,6 +1,6 @@
 # utils/embeds.py
 import discord
-from utils.helper import clean_news_content
+from src.utils.helper import clean_news_content
 
 class NewsEmbed:
   def __init__(self, title, url, description, published_date=None, game_name=None, image_url=None, small_image_url=None, color=discord.Color.blue()):

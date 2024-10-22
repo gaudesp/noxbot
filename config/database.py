@@ -1,14 +1,15 @@
-# db/database.py
+# config/database.py
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from src.schemas.game_schema import GameSchema
+from src.schemas.game import GameSchema
+from utils.discord import DiscordBot
 
 Base = declarative_base()
 
 class Database:
-  def __init__(self, database_url: str = "sqlite+aiosqlite:///db/database.db"):
-    self.engine = create_async_engine(database_url, echo=False)
+  def __init__(self, bot: DiscordBot):
+    self.engine = create_async_engine(bot.settings.db_path, echo=False)
     self.Session = sessionmaker(bind=self.engine, class_=AsyncSession, expire_on_commit=False)
 
   async def setup(self):

@@ -2,10 +2,10 @@
 import discord
 from discord.ext import commands, tasks
 from discord import app_commands
-from src.repositories.game_repository import GameRepository
-from src.services.steam_service import SteamService
-from src.services.news_service import NewsService
-from utils.discord_bot import DiscordBot
+from src.repositories.game import GameRepository
+from src.services.steam import SteamService
+from src.services.news import NewsService
+from src.utils.discord import DiscordBot
 
 class GameCog(commands.Cog):
   def __init__(self, bot: DiscordBot):

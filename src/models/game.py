@@ -1,6 +1,6 @@
 # src/models/game_model.py
 from sqlalchemy import Column, Integer, String
-from db.database import Base
+from config.database import Base
 
 class Game(Base):
   __tablename__ = 'games'

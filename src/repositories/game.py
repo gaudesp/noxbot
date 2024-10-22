@@ -1,8 +1,8 @@
 # src/repositories/game_repository.py
-from src.models.game_model import Game as GameModel
 from sqlalchemy import update, delete
 from sqlalchemy.future import select
-from utils.discord_bot import DiscordBot
+from src.models.game import Game as GameModel
+from src.utils.discord import DiscordBot
 
 class GameRepository:
   def __init__(self, bot: DiscordBot):
