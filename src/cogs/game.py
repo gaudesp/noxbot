@@ -28,7 +28,7 @@ class GameCog(commands.Cog):
     games_total = len(games)
     self.bot.log(f"{games_total} followed games {':' if games_total > 0 else ''} {games_info}", "discord.on_ready")
       
-  @tasks.loop(seconds=10)
+  @tasks.loop(seconds=3600)
   async def check_for_news(self) -> None:
     """Vérifie les actualités des jeux toutes les heures."""
     await self.news_service.get_all_news()
@@ -38,6 +38,7 @@ class GameCog(commands.Cog):
   async def before_check_for_news(self) -> None:
     """Attendre que le bot soit prêt avant de démarrer la boucle de vérification des actualités."""
     await self.bot.wait_until_ready()
+    self.check_for_news.change_interval(seconds=self.bot.settings.check_interval)
   
   @app_commands.autocomplete(game='game_name_autocomplete')
   async def game_name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
