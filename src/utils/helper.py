@@ -6,6 +6,13 @@ from os.path import dirname, abspath, join
 
 root_directory = dirname(dirname(abspath(__file__)))
 
+def set_commands_description(cogs, translator):
+  for cog in cogs:
+    commands = cog.get_app_commands()
+    for command in commands:
+      description_key = f"cogs.{cog.qualified_name[:-3].lower()}.commands.{command.name}.description"
+      command.description = translator.translate(description_key)
+
 def set_logging(file_level: int = logging.DEBUG, console_level: int = logging.INFO, filename: str = "../discord.log") -> tuple[logging.Logger, logging.StreamHandler]:
   """Configure le logging pour le bot Discord."""
   logger = logging.getLogger("discord")

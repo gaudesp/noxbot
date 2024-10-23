@@ -46,7 +46,7 @@ class GameCog(commands.Cog):
     games = await self.game_repository.get_games_for_guild(interaction.guild.id)
     matching_games = [game for game in games if current.lower() in game.game_name.lower()]
     return [
-      app_commands.Choice(name=game.game_name, value=str(game.app_id))
+      app_commands.Choice(name=game.game_name[:100], value=str(game.app_id))
       for game in matching_games[:25]
     ]
 
@@ -57,11 +57,11 @@ class GameCog(commands.Cog):
       return []
     matching_games = await self.steam_service.search_game_by_name(current)
     return [
-      app_commands.Choice(name=game['name'], value=str(game['appid']))
+      app_commands.Choice(name=game['name'][:100], value=str(game['appid']))
       for game in matching_games
     ]
 
-  @app_commands.command(name='follow_game', description='Ajoutez un jeu à suivre')
+  @app_commands.command(name='nx_follow', description='placeholder')
   @app_commands.autocomplete(game=game_app_id_autocomplete)
   @app_commands.checks.has_permissions(administrator=True)
   async def follow_game(self, interaction: discord.Interaction, game: str, channel: discord.TextChannel) -> None:
@@ -69,20 +69,17 @@ class GameCog(commands.Cog):
     app_id = game
     existing_game = await self.game_repository.get_game_for_guild(app_id, interaction.guild.id)
     if existing_game:
-      await interaction.response.send_message(
-        f"Le jeu **{existing_game.game_name}** (`{existing_game.app_id}`) est déjà suivi dans {existing_game.channel}.",
-        ephemeral=True
-      )
+      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_follow.messages.already_followed", game_name=existing_game.game_name, app_id=existing_game.app_id, channel=existing_game.channel), ephemeral=True)
       return
     game_name = await self.steam_service.get_game_name(app_id)
     if game_name:
       game = await self.game_repository.add_game(app_id=app_id, guild_id=interaction.guild.id, channel_id=channel.id, game_name=game_name)
       await self.news_service.update_last_news(app_id, interaction.guild.id)
-      await interaction.response.send_message(f"Le jeu **{game.game_name}** (`{game.app_id}`) sera désormais suivi dans {game.channel}.", ephemeral=True)
+      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_follow.messages.success", game_name=game.game_name, app_id=game.app_id, channel=game.channel), ephemeral=True)
     else:
-      await interaction.response.send_message(f"Le jeu `{app_id}` n'existe pas.",ephemeral=True)
+      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_follow.messages.not_found", game=app_id), ephemeral=True)
 
-  @app_commands.command(name='unfollow_game', description='Supprimez un jeu suivi')
+  @app_commands.command(name='nx_unfollow', description='placeholder')
   @app_commands.autocomplete(game=game_name_autocomplete)
   @app_commands.checks.has_permissions(administrator=True)
   async def unfollow_game(self, interaction: discord.Interaction, game: str) -> None:
@@ -90,11 +87,11 @@ class GameCog(commands.Cog):
     app_id = game
     game = await self.game_repository.delete_game(app_id=app_id, guild_id=interaction.guild.id)
     if game:
-      await interaction.response.send_message(f"Le jeu **{game.game_name}** (`{game.app_id}`) ne sera plus suivi dans {game.channel}.", ephemeral=True)
+      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_unfollow.messages.success", game_name=game.game_name, app_id=game.app_id, channel=game.channel), ephemeral=True)
     else:
-      await interaction.response.send_message(f"Le jeu `{app_id}` n'est pas suivi.", ephemeral=True)
+      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_unfollow.messages.not_followed", game=app_id), ephemeral=True)
 
-  @app_commands.command(name='publish_news', description="Postez la dernière actualité du jeu dans son channel (pour tester)")
+  @app_commands.command(name='nx_publish', description='placeholder')
   @app_commands.autocomplete(game=game_name_autocomplete)
   @app_commands.checks.has_permissions(administrator=True)
   async def publish_news(self, interaction: discord.Interaction, game: str) -> None:
@@ -104,32 +101,32 @@ class GameCog(commands.Cog):
     if game:
       news = await self.news_service.get_last_news(game)
       if news:
-        await interaction.response.send_message(f"La dernière actualité du jeu **{game.game_name}** a été publiée dans le channel {game.channel}.", ephemeral=True)
+        await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_publish.messages.success", game_name=game.game_name, app_id=game.app_id, channel=game.channel), ephemeral=True)
       else:
-        await interaction.response.send_message(f"Aucune nouvelle actualité n'a été trouvée pour le jeu **{game.game_name}**.", ephemeral=True)
+        await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_publish.messages.not_found", game_name=game.game_name), ephemeral=True)
     else:
-      await interaction.response.send_message(f"Le jeu `{app_id}` n'existe pas.", ephemeral=True)
+      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_publish.messages.not_exist", game=app_id), ephemeral=True)
 
-  @app_commands.command(name='list_game', description='Listez les jeux suivis')
+  @app_commands.command(name='nx_list', description='placeholder')
   @app_commands.checks.has_permissions(administrator=True)
   async def list_games(self, interaction: discord.Interaction) -> None:
     """Liste tous les jeux suivis dans le serveur."""
     games = await self.game_repository.get_games_for_guild(guild_id=interaction.guild.id)
     if games:
-      game_list = '\n'.join([f"**{game.game_name}** (`{game.app_id}`) dans {game.channel}" for game in games])
-      await interaction.response.send_message(f"Jeux suivis sur ce serveur:\n{game_list}", ephemeral=True)
+      message = ''.join([self.bot.translate("cogs.game.commands.nx_list.messages.success", game_name=game.game_name, app_id=game.app_id, channel=game.channel) for game in games])
     else:
-      await interaction.response.send_message("Aucun jeu n'est suivi.", ephemeral=True)
+      message = self.bot.translate("cogs.game.commands.nx_list.messages.not_followed")
+    await interaction.response.send_message(message, ephemeral=True)
 
-  @app_commands.command(name='reset_games', description='Supprimez tous les jeux suivis du serveur')
+  @app_commands.command(name='nx_reset', description='placeholder')
   @app_commands.checks.has_permissions(administrator=True)
   async def reset_games(self, interaction: discord.Interaction) -> None:
     """Supprime tous les jeux suivis du serveur."""
     deleted_games = await self.game_repository.delete_all_games(interaction.guild.id)
     if deleted_games:
-      await interaction.response.send_message(f"{deleted_games} jeux ne seront plus suivis.", ephemeral=True)
+      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_reset.messages.success", total=deleted_games), ephemeral=True)
     else:
-      await interaction.response.send_message("Aucun jeu à supprimer.", ephemeral=True)
+      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_reset.messages.not_followed"), ephemeral=True)
 
 async def setup(bot: DiscordBot) -> None:
   """Configure le cog de jeu et l'ajoute au bot."""
