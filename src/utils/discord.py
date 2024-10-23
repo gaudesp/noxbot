@@ -72,4 +72,5 @@ class DiscordBot(commands.Bot):
   async def __sync_commands(self) -> None:
     """Synchronise les commandes de l'application avec Discord."""
     set_commands_description(self.cogs.values(), self.translate)
-    await self.tree.sync()
+    synced = await self.tree.sync()
+    self.log(f"{len(synced)} commands synced : {', '.join(command.name for command in synced)}", "discord.sync_commands")
