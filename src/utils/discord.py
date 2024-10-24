@@ -7,7 +7,9 @@ from logging import Logger, INFO
 from typing import TypeVar
 from config.settings import Settings
 from config.database import Database
+from config.translator import Translator
 from discord import __version__ as discord_version
+from src.utils.helper import set_commands_description
 
 Self = TypeVar("Self", bound="DiscordBot")
 
@@ -15,6 +17,7 @@ class DiscordBot(commands.Bot):
   settings: Settings
   logger: Logger
   database: Database
+  translate: Translator
   uptime: datetime = datetime.now()
 
   def __init__(self, **kwargs) -> None:
@@ -26,6 +29,7 @@ class DiscordBot(commands.Bot):
     kwargs.setdefault("max_messages", 2500)
     kwargs.setdefault("status", discord.Status.online)
 
+    self.translate = Translator(locales_path='locales')
     super().__init__(command_prefix='/', **kwargs)
 
   def log(self, message: str, name: str, level: int = INFO, **kwargs) -> None:
@@ -37,17 +41,12 @@ class DiscordBot(commands.Bot):
     """Appelé lorsque le bot est prêt et connecté à Discord."""
     self.log(f"Logged as {self.user} | Discord.py v{discord_version} | Guilds : {len(self.guilds)}", "discord.on_ready")
 
-  async def startup(self) -> None:
-    """Prépare le bot après sa connexion à Discord."""
-    self.appinfo = await self.application_info()
-    await self.wait_until_ready()
-    await self.__init_database()
-    await self.__sync_commands()
-
   async def setup_hook(self) -> None:
     """Configurer le bot, y compris la base de données et les extensions."""
+    self.appinfo = await self.application_info()
     await self.__load_extensions()
-    self.loop.create_task(self.startup())
+    await self.__init_database()
+    await self.__sync_commands()
 
   async def close(self) -> None:
     """Ferme la connexion à la base de données et déconnecte le bot."""
@@ -73,5 +72,6 @@ class DiscordBot(commands.Bot):
 
   async def __sync_commands(self) -> None:
     """Synchronise les commandes de l'application avec Discord."""
+    set_commands_description(self.cogs.values(), self.translate)
     synced = await self.tree.sync()
-    self.log(f"Application commands synced ({len(synced)})", "discord.startup")
+    self.log(f"{len(synced)} commands synced : {', '.join(command.name for command in synced)}", "discord.sync_commands")
