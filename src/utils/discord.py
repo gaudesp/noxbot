@@ -43,8 +43,9 @@ class DiscordBot(commands.Bot):
 
   async def setup_hook(self) -> None:
     """Configurer le bot, y compris la base de données et les extensions."""
-    await self.__init_database()
+    self.appinfo = await self.application_info()
     await self.__load_extensions()
+    await self.__init_database()
     await self.__sync_commands()
 
   async def close(self) -> None:
