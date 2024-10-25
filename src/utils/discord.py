@@ -7,7 +7,7 @@ from logging import Logger, INFO
 from typing import TypeVar
 from src.utils.settings import Settings
 from src.utils.database import Database
-from src.utils.translator import Translator
+from src.utils.i18n import I18n
 from discord import __version__ as discord_version
 from src.utils.helper import set_commands_description
 
@@ -17,7 +17,7 @@ class DiscordBot(commands.Bot):
   settings: Settings
   logger: Logger
   database: Database
-  translate: Translator
+  i18n: I18n
   uptime: datetime = datetime.now()
 
   def __init__(self, **kwargs) -> None:
@@ -29,7 +29,7 @@ class DiscordBot(commands.Bot):
     kwargs.setdefault("max_messages", 2500)
     kwargs.setdefault("status", discord.Status.online)
 
-    self.translate = Translator(locales_path='src/locales')
+    self.i18n = I18n(locales_path='src/locales')
     super().__init__(command_prefix='/', **kwargs)
 
   def log(self, message: str, name: str, level: int = INFO, **kwargs) -> None:
@@ -72,6 +72,6 @@ class DiscordBot(commands.Bot):
 
   async def __sync_commands(self) -> None:
     """Synchronise les commandes du bot avec Discord."""
-    set_commands_description(self.cogs.values(), self.translate)
+    set_commands_description(self.cogs.values(), self.i18n)
     synced = await self.tree.sync()
     self.log(f"{len(synced)} commands synced : {', '.join(command.name for command in synced)}", "discord.sync_commands")

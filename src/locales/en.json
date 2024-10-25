@@ -40,6 +40,18 @@
           }
         }
       }
+    },
+    "guild": {
+      "commands": {
+        "nx_lang": {
+          "description": "Choose your language.",
+          "messages": {
+            "success": "The langage has been updated to `{language}`.",
+            "not_found": "The language `{language}` is not valid.",
+            "not_updated": "The language could not be updated."
+          }
+        }
+      }
     }
   }
 }
