@@ -1,6 +1,6 @@
 # src/models/guild.py
 from sqlalchemy import Boolean, Column, Integer, String
-from config.database import Base
+from src.utils.database import Base
 from sqlalchemy.orm import relationship
 
 class Guild(Base):

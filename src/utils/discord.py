@@ -5,9 +5,9 @@ from datetime import datetime
 from discord.ext import commands
 from logging import Logger, INFO
 from typing import TypeVar
-from config.settings import Settings
-from config.database import Database
-from config.translator import Translator
+from src.utils.settings import Settings
+from src.utils.database import Database
+from src.utils.translator import Translator
 from discord import __version__ as discord_version
 from src.utils.helper import set_commands_description
 
@@ -29,7 +29,7 @@ class DiscordBot(commands.Bot):
     kwargs.setdefault("max_messages", 2500)
     kwargs.setdefault("status", discord.Status.online)
 
-    self.translate = Translator(locales_path='locales')
+    self.translate = Translator(locales_path='src/locales')
     super().__init__(command_prefix='/', **kwargs)
 
   def log(self, message: str, name: str, level: int = INFO, **kwargs) -> None:

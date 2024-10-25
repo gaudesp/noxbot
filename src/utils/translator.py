@@ -1,4 +1,4 @@
-# config/translator.py
+# src/utils/translator.py
 import os
 import json
 from typing import Dict

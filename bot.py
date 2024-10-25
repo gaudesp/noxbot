@@ -1,7 +1,7 @@
 # bot.py
 import discord
 import logging
-from config.settings import Settings
+from src.utils.settings import Settings
 from src.utils.discord import DiscordBot
 from src.utils.helper import set_logging
 

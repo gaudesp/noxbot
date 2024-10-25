@@ -1,4 +1,4 @@
-# config/database.py
+# src/utils/database.py
 from typing import Any
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
