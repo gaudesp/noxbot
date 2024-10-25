@@ -15,11 +15,3 @@ class Game(Base):
   def channel(self) -> str:
     """Retourne la mention du canal sous forme de chaîne."""
     return f"<#{self.channel_id}>"
-
-  def to_dict(self) -> dict:
-    """Convertit l'objet Game en dictionnaire."""
-    return {
-      'game_name': self.name,
-      'app_id': self.id,
-      'channel': self.channel,
-    }
