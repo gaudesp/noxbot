@@ -7,28 +7,28 @@ from src.utils.discord import DiscordBot
 
 class ErrorCog(commands.Cog):
   def __init__(self, bot: DiscordBot) -> None:
-    """Initialise le cog d'erreur avec une instance de DiscordBot."""
+    """Initialise le cog d'erreurs avec le bot."""
     self.bot = bot
     self.default_error_message = "Une erreur est survenue."
     bot.tree.error(self.on_app_command_error)
 
   @commands.Cog.listener()
   async def on_error(self, event, *args, **kwargs) -> None:
-    """Écoute les erreurs inattendues dans les événements."""
+    """Gestion des erreurs inattendues dans les événements Discord."""
     self.bot.log(f"Unexpected error in event: {event}, args: {args}, kwargs: {kwargs}", "discord.on_error", CRITICAL)
 
   @commands.Cog.listener()
   async def on_command_error(self, ctx: commands.Context, error: commands.CommandError) -> None:
-    """Écoute les erreurs de commande et les traite."""
+    """Gestion des erreurs pour les commandes classiques."""
     await self._handle_error(ctx, error)
 
   @commands.Cog.listener()
   async def on_app_command_error(self, interaction: discord.Interaction, error: discord.app_commands.AppCommandError) -> None:
-    """Écoute les erreurs de commande d'application et les traite."""
+    """Gestion des erreurs pour les commandes d'application."""
     await self._handle_error(interaction, error)
 
   async def _handle_error(self, ctx_or_interaction, error: Exception) -> None:
-    """Gère les erreurs et enregistre les messages d'erreur."""
+    """Traite les erreurs en journalisant le traceback et en envoyant un message d'erreur."""
     error_traceback = traceback.format_exc()
     self.bot.log(f"Error occurred: {type(error).__name__}: {error}\n{error_traceback}", "discord._handle_error", ERROR)
 
@@ -38,7 +38,7 @@ class ErrorCog(commands.Cog):
       await self._send_error_message(interaction=ctx_or_interaction, message=str(error))
 
   async def _send_error_message(self, ctx=None, interaction=None, message=None) -> None:
-    """Envoie un message d'erreur à l'utilisateur."""
+    """Envoie un message d'erreur à l'utilisateur selon le contexte."""
     if ctx:
       try:
         await ctx.send(self.default_error_message)
@@ -51,5 +51,5 @@ class ErrorCog(commands.Cog):
         self.bot.log("Interaction has already been responded to.", "discord._send_error_message", ERROR)
 
 async def setup(bot: DiscordBot) -> None:
-  """Configure le cog d'erreur et l'ajoute au bot."""
+  """Configure le cog d'erreurs avec le bot."""
   await bot.add_cog(ErrorCog(bot))

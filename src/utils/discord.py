@@ -5,9 +5,9 @@ from datetime import datetime
 from discord.ext import commands
 from logging import Logger, INFO
 from typing import TypeVar
-from config.settings import Settings
-from config.database import Database
-from config.translator import Translator
+from src.utils.settings import Settings
+from src.utils.database import Database
+from src.utils.translator import Translator
 from discord import __version__ as discord_version
 from src.utils.helper import set_commands_description
 
@@ -21,7 +21,7 @@ class DiscordBot(commands.Bot):
   uptime: datetime = datetime.now()
 
   def __init__(self, **kwargs) -> None:
-    """Initialise le bot Discord avec les paramètres par défaut."""
+    """Initialise le bot Discord avec des paramètres par défaut."""
     kwargs.setdefault("activity", discord.Activity(type=discord.ActivityType.listening, name="NOKX"))
     kwargs.setdefault("allowed_mentions", discord.AllowedMentions(everyone=False))
     kwargs.setdefault("case_insensitive", True)
@@ -29,11 +29,11 @@ class DiscordBot(commands.Bot):
     kwargs.setdefault("max_messages", 2500)
     kwargs.setdefault("status", discord.Status.online)
 
-    self.translate = Translator(locales_path='locales')
+    self.translate = Translator(locales_path='src/locales')
     super().__init__(command_prefix='/', **kwargs)
 
   def log(self, message: str, name: str, level: int = INFO, **kwargs) -> None:
-    """Enregistre un message dans le journal avec le niveau de gravité spécifié."""
+    """Enregistre un message de log avec le niveau spécifié."""
     self.logger.name = name
     self.logger.log(level=level, msg=message, **kwargs)
 
@@ -42,14 +42,14 @@ class DiscordBot(commands.Bot):
     self.log(f"Logged as {self.user} | Discord.py v{discord_version} | Guilds : {len(self.guilds)}", "discord.on_ready")
 
   async def setup_hook(self) -> None:
-    """Configurer le bot, y compris la base de données et les extensions."""
+    """Configuration initiale du bot avant de commencer à écouter les événements."""
     self.appinfo = await self.application_info()
     await self.__load_extensions()
     await self.__init_database()
     await self.__sync_commands()
 
   async def close(self) -> None:
-    """Ferme la connexion à la base de données et déconnecte le bot."""
+    """Ferme la connexion à la base de données et arrête le bot."""
     await self.database.close()
     await super().close()
 
@@ -71,7 +71,7 @@ class DiscordBot(commands.Bot):
     self.log(f"{len(extensions)} cogs loaded : {', '.join(extension.split('.')[-1] for extension in extensions)}", "discord.load_extensions")
 
   async def __sync_commands(self) -> None:
-    """Synchronise les commandes de l'application avec Discord."""
+    """Synchronise les commandes du bot avec Discord."""
     set_commands_description(self.cogs.values(), self.translate)
     synced = await self.tree.sync()
     self.log(f"{len(synced)} commands synced : {', '.join(command.name for command in synced)}", "discord.sync_commands")

@@ -1,0 +1,45 @@
+{
+  "cogs": {
+    "game": {
+      "commands": {
+        "nx_follow": {
+          "description": "Follow a Steam game to receive its news in a specific channel.",
+          "messages": {
+            "success": "Future news for the game `{game_name}` will now be posted in {channel}.",
+            "exist": "The game `{game_name}` is already being followed in {channel}.",
+            "not_found": "This game is not available for news tracking."
+          }
+        },
+        "nx_unfollow": {
+          "description": "Unfollow a Steam game to stop receiving its news.",
+          "messages": {
+            "success": "The game `{game_name}` has been unfollowed and will no longer post in {channel}.",
+            "not_followed": "This game is not currently being followed."
+          }
+        },
+        "nx_publish": {
+          "description": "Publish the latest news of a followed Steam game in its associated channel (for testing).",
+          "messages": {
+            "success": "The latest news for the game `{game_name}` has been successfully published in {channel}.",
+            "not_found": "No news could be found for the game `{game_name}`.",
+            "not_exist": "This game does not exist."
+          }
+        },
+        "nx_list": {
+          "description": "List all followed Steam games with their respective channels.",
+          "messages": {
+            "success": "\n- **{game_name}** (`{app_id}`) is being followed in {channel}",
+            "not_followed": "No games are currently being followed."
+          }
+        },
+        "nx_reset": {
+          "description": "Unfollow all Steam games to stop receiving any news.",
+          "messages": {
+            "success": "The following games will no longer be followed: {games}.",
+            "not_followed": "No games are currently being followed."
+          }
+        }
+      }
+    }
+  }
+}

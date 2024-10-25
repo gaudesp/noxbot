@@ -2,13 +2,14 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class GameSchema(BaseModel):
-  app_id: int
+class Game(BaseModel):
+  id: int
+  name: str
   guild_id: int
   channel_id: int
-  game_name: str
   last_news_id: Optional[str] = None
+  channel: str
 
   class Config:
-    """Configuration de Pydantic pour le modèle GameSchema."""
+    """Configuration de Pydantic pour le modèle Game."""
     from_attributes = True
