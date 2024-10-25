@@ -25,7 +25,7 @@ class GuildCog(commands.Cog):
     self.bot.log(f"Guild {guild.name} (ID: {guild.id}) has removed {self.bot_name} to its server", "discord.on_guild_remove")
 
   @app_commands.autocomplete(locale='locale_autocomplete')
-  async def locale_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+  async def locale_autocomplete(self, interaction: discord.Interaction, current: str) -> None:
     """Fournit des suggestions d'autocomplétion pour la locale."""
     await interaction.response.defer(thinking=True)
     matching_locales = self.bot.i18n.get_locales()
