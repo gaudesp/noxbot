@@ -33,8 +33,9 @@ class GuildCog(commands.Cog):
       app_commands.Choice(name=locale, value=str(locale))
       for locale in matching_locales if current.lower() in locale.lower()
     ]
-    if not interaction.response.is_done():
-      await interaction.response.autocomplete(choices)
+    if interaction.response.is_done():
+      return []
+    await interaction.response.autocomplete(choices)
 
   @app_commands.command(name='nx_lang', description='placeholder')
   @app_commands.autocomplete(locale=locale_autocomplete)

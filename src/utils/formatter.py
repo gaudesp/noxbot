@@ -17,11 +17,11 @@ class NewsFormatter:
 
   @staticmethod
   def clean_content(content: str, max_length: int = 300) -> str:
-    cleaned_content = NewsFormatter._strip_html(content)
-    cleaned_content = NewsFormatter._apply_replacements(cleaned_content)
-    cleaned_content = NewsFormatter._truncate(cleaned_content, max_length)
-    cleaned_content = NewsFormatter._limit_lines(cleaned_content)
-    cleaned_content = NewsFormatter._finale_truncate(cleaned_content)
+    strip_html = NewsFormatter._strip_html(content)
+    apply_replacements = NewsFormatter._apply_replacements(strip_html)
+    truncate = NewsFormatter._truncate(apply_replacements, max_length)
+    limit_lines = NewsFormatter._limit_lines(truncate)
+    cleaned_content = NewsFormatter._finale_truncate(limit_lines)
     return cleaned_content
 
   @staticmethod

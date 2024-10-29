@@ -34,7 +34,7 @@ class GameCog(commands.Cog):
   @tasks.loop(seconds=3600)
   async def check_for_news(self) -> None:
     """Vérifie les actualités des jeux toutes les heures."""
-    await self.news_service.get_all_news()
+    await self.news_service.send_all_news()
     self.bot.log("Steam games news verified", "discord.check_for_news")
 
   @check_for_news.before_loop
@@ -53,8 +53,9 @@ class GameCog(commands.Cog):
       app_commands.Choice(name=game.name[:100], value=str(game.id))
       for game in matching_games[:25]
     ]
-    if not interaction.response.is_done():
-      await interaction.response.autocomplete(choices)
+    if interaction.response.is_done():
+      return []
+    await interaction.response.autocomplete(choices)
 
   @app_commands.autocomplete(game='game_app_id_autocomplete')
   async def game_app_id_autocomplete(self, interaction: discord.Interaction, current: str) -> None:
@@ -67,8 +68,9 @@ class GameCog(commands.Cog):
       app_commands.Choice(name=game['name'][:100], value=str(game['appid']))
       for game in matching_games
     ]
-    if not interaction.response.is_done():
-      await interaction.response.autocomplete(choices)
+    if interaction.response.is_done():
+      return []
+    await interaction.response.autocomplete(choices)
 
   @app_commands.command(name='nx_follow', description='placeholder')
   @app_commands.autocomplete(game=game_app_id_autocomplete)
@@ -119,9 +121,13 @@ class GameCog(commands.Cog):
       await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.not_exist", locale, game_name=game), ephemeral=True)
       return
 
-    news_found = await self.news_service.get_last_news(game_exist)
-    if not news_found:
+    news_found = await self.news_service.send_last_news(game_exist)
+    if news_found is False:
       await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.not_found", locale, game_name=game_exist.name), ephemeral=True)
+      return
+    
+    if news_found is None:
+      await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.error", locale, game_name=game_exist.name), ephemeral=True)
       return
 
     await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.success", locale, game_name=game_exist.name, channel=game_exist.channel), ephemeral=True)

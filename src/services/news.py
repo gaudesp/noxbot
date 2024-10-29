@@ -20,13 +20,13 @@ class NewsService:
 
   # Public methods
 
-  async def get_all_news(self) -> None:
+  async def send_all_news(self) -> None:
     """Récupère toutes les news pour les jeux suivis."""
     games_by_app_id = await self._group_games_by_app_id()
     for app_id, game_instances in games_by_app_id.items():
       await self._check_news_for_games(app_id, game_instances)
 
-  async def get_last_news(self, game: Game, check_last_news: bool = False) -> bool:
+  async def send_last_news(self, game: Game, check_last_news: bool | None = False) -> bool | None:
     """Récupère les dernières news pour un jeu spécifique."""
     game_instance = Game.model_validate(game)
     return await self._check_news_for_games(game.id, [game_instance], check_last_news)
@@ -46,23 +46,30 @@ class NewsService:
       return await self._process_news_for_games(news, game_instances, check_last_news)
     return False
 
-  async def _process_news_for_games(self, news, game_instances: list[Game], check_last_news: bool) -> bool:
+  async def _process_news_for_games(self, news, game_instances: list[Game], check_last_news: bool | None) -> bool | None:
     """Traite les news pour les instances de jeux et les envoie si nécessaire."""
     has_news = False
     for game in game_instances:
       if not check_last_news or news.get('gid') != game.last_news_id:
-        await self._send_news_to_channel(news, game)
-        has_news = True
+        result = await self._send_news_to_channel(news, game)
+        if result:
+          has_news = True
+        else:
+          has_news = None
     return has_news
 
   async def _send_news_to_channel(self, news, game: Game) -> None:
     """Envoie les dernières news à un canal spécifique."""
-    guild_id = game.guild_id
-    translated_title = await self._get_translated_text(news.get('title'), guild_id)
-    translated_description = await self._get_translated_text(NewsFormatter.clean_content(news.get('contents')), guild_id)
-    channel = self._get_channel(game.channel_id)
-    if channel:
+    try:
+      guild_id = game.guild_id
+      translated_title = await self._get_translated_text(news.get('title'), guild_id)
+      translated_description = await self._get_translated_text(NewsFormatter.clean_content(news.get('contents')), guild_id)
+      channel = self._get_channel(game.channel_id)
+      if not channel and not translated_title and not translated_description:
+        return None
       await self._send_last_news(news, game.id, guild_id, channel, game.name, translated_title, translated_description)
+    except:
+      return None
 
   async def _get_translated_text(self, text: str, guild_id: int) -> str:
     """Récupère le texte traduit, en utilisant le cache si disponible."""
@@ -77,6 +84,8 @@ class NewsService:
       return self.translations_cache[(locale, text)]
     
     translated_text = await self._perform_translation(text, locale)
+    if not translated_text:
+      return None
     self.translations_cache[(locale, text)] = translated_text
     return translated_text
 
@@ -85,6 +94,8 @@ class NewsService:
     cleaned_text, emojis = NewsFormatter.isolate_emojis(text)
     translator = Translator(to_lang=locale)
     translated_text = translator.translate(cleaned_text)
+    if "MYMEMORY WARNING" in translated_text:
+      raise ValueError("Translation limit exceeded: MyMemory warning detected.")
     return NewsFormatter.restore_emojis(translated_text, emojis)
 
   async def _send_last_news(self, news, app_id: int, guild_id: int, channel, game_name: str, title: str, description: str) -> None:

@@ -22,7 +22,8 @@
           "messages": {
             "success": "The latest news for the game `{game_name}` has been successfully published in {channel}.",
             "not_found": "No new news could be found for the game `{game_name}`.",
-            "not_exist": "This game does not exist."
+            "not_exist": "The game `{game_name}` does not exist.",
+            "error": "The latest news for the game `{game_name}` could not be sent due to an internal error."
           }
         },
         "nx_list": {

@@ -18,11 +18,12 @@
           }
         },
         "nx_publish": {
-          "description": "Publier les dernières actualités d'un jeu Steam suivi dans son canal associé (pour les tests).",
+          "description": "Publier la dernière actualité d'un jeu Steam suivi dans son canal associé (pour les tests).",
           "messages": {
-            "success": "Les dernières actualités du jeu `{game_name}` ont été publiées avec succès dans {channel}.",
+            "success": "Le dernière actualité du jeu `{game_name}` a été publiée avec succès dans {channel}.",
             "not_found": "Aucune nouvelle actualité n'a pu être trouvée pour le jeu `{game_name}`.",
-            "not_exist": "Ce jeu n'existe pas."
+            "not_exist": "Le jeu `{game_name}` n'existe pas.",
+            "error": "La dernière actualité du jeu `{game_name}` n'a pas pu être envoyé en raison d'une erreur interne."
           }
         },
         "nx_list": {
