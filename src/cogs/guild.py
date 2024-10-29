@@ -33,22 +33,26 @@ class GuildCog(commands.Cog):
       app_commands.Choice(name=locale, value=str(locale))
       for locale in matching_locales if current.lower() in locale.lower()
     ]
-    await interaction.response.autocomplete(choices)
+    if not interaction.response.is_done():
+      await interaction.response.autocomplete(choices)
 
   @app_commands.command(name='nx_lang', description='placeholder')
   @app_commands.autocomplete(locale=locale_autocomplete)
   @app_commands.checks.has_permissions(administrator=True)
   async def define_locale(self, interaction: discord.Interaction, locale: str) -> None:
     """Met à jour la langue de la guilde uniquement si la locale est valide."""
+    await interaction.response.defer(thinking=True)
+    guild_id = interaction.guild.id
+    guild_locale = await self.guild_service.find_guild_locale(guild_id)
     if locale not in self.bot.i18n.get_locales():
-      await interaction.response.send_message(self.bot.i18n.translate("cogs.guild.commands.nx_lang.messages.not_found", language=locale),ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.guild.commands.nx_lang.messages.not_found", guild_locale, language=locale),ephemeral=True)
       return
 
-    success = await self.guild_service.update_guild_locale(interaction.guild.id, locale)
+    success = await self.guild_service.update_guild_locale(interaction.guild, locale)
     if success:
-      await interaction.response.send_message(self.bot.i18n.translate("cogs.guild.commands.nx_lang.messages.success", language=locale),ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.guild.commands.nx_lang.messages.success", locale, language=locale),ephemeral=True)
     else:
-      await interaction.response.send_message(self.bot.i18n.translate("cogs.guild.commands.nx_lang.not_updated"),ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.guild.commands.nx_lang.not_updated", locale),ephemeral=True)
 
 async def setup(bot: DiscordBot) -> None:
   """Configure le cog de guilde avec le bot."""

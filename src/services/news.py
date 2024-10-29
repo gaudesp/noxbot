@@ -1,17 +1,24 @@
 # src/services/news.py
+
 from collections import defaultdict
 from datetime import datetime
-from src.utils.helper import extract_image_urls
+from translate import Translator
+from src.services.guild import GuildService
 from src.utils.embed import NewsEmbed
 from src.services.steam import SteamService
 from src.schemas.game import Game
+from src.utils.formatter import NewsFormatter
 
 class NewsService:
   def __init__(self, bot, game_service) -> None:
     """Initialise le service de news avec le bot et le service de jeu."""
     self.bot = bot
     self.game_service = game_service
+    self.guild_service = GuildService(bot)
     self.steam_service = SteamService()
+    self.translations_cache = {}
+
+  # Public methods
 
   async def get_all_news(self) -> None:
     """Récupère toutes les news pour les jeux suivis."""
@@ -30,39 +37,79 @@ class NewsService:
     if news and 'gid' in news:
       await self.game_service.update_game_last_news_id(app_id, guild_id, news.get('gid'))
 
+  # Private methods
+
   async def _check_news_for_games(self, app_id: int, game_instances: list[Game], check_last_news: bool = True) -> bool:
     """Vérifie les news pour un groupe de jeux."""
     news = await self.steam_service.get_game_news(app_id)
-    has_news = False
     if news and 'gid' in news:
-      for game in game_instances:
-        if not check_last_news or news.get('gid') != game.last_news_id:
-          channel = self._get_channel(game.channel_id)
-          if channel:
-            await self._send_last_news(news, game.id, game.guild_id, channel, game.name)
-            has_news = True
+      return await self._process_news_for_games(news, game_instances, check_last_news)
+    return False
+
+  async def _process_news_for_games(self, news, game_instances: list[Game], check_last_news: bool) -> bool:
+    """Traite les news pour les instances de jeux et les envoie si nécessaire."""
+    has_news = False
+    for game in game_instances:
+      if not check_last_news or news.get('gid') != game.last_news_id:
+        await self._send_news_to_channel(news, game)
+        has_news = True
     return has_news
 
-  async def _send_last_news(self, news, app_id: int, guild_id: int, channel, game_name: str) -> None:
+  async def _send_news_to_channel(self, news, game: Game) -> None:
+    """Envoie les dernières news à un canal spécifique."""
+    guild_id = game.guild_id
+    translated_title = await self._get_translated_text(news.get('title'), guild_id)
+    translated_description = await self._get_translated_text(NewsFormatter.clean_content(news.get('contents')), guild_id)
+    channel = self._get_channel(game.channel_id)
+    if channel:
+      await self._send_last_news(news, game.id, guild_id, channel, game.name, translated_title, translated_description)
+
+  async def _get_translated_text(self, text: str, guild_id: int) -> str:
+    """Récupère le texte traduit, en utilisant le cache si disponible."""
+    locale = await self.guild_service.find_guild_locale(guild_id)
+    if locale == "en":
+      return text
+    return await self._translate_text(text, locale)
+
+  async def _translate_text(self, text: str, locale: str) -> str:
+    """Traduit le texte donné en utilisant le cache ou l'API de traduction."""
+    if (locale, text) in self.translations_cache:
+      return self.translations_cache[(locale, text)]
+    
+    translated_text = await self._perform_translation(text, locale)
+    self.translations_cache[(locale, text)] = translated_text
+    return translated_text
+
+  async def _perform_translation(self, text: str, locale: str) -> str:
+    """Effectue la traduction du texte en utilisant l'API de traduction."""
+    cleaned_text, emojis = NewsFormatter.isolate_emojis(text)
+    translator = Translator(to_lang=locale)
+    translated_text = translator.translate(cleaned_text)
+    return NewsFormatter.restore_emojis(translated_text, emojis)
+
+  async def _send_last_news(self, news, app_id: int, guild_id: int, channel, game_name: str, title: str, description: str) -> None:
     """Envoie les dernières news à un canal spécifique."""
     image_url = await self._get_image_url(news, app_id)
     published_date = self._extract_published_date(news)
-    embed = self._create_news_embed(news, game_name, image_url, published_date)
+    embed = await self._create_news_embed(guild_id, game_name, image_url, published_date, title, description, news.get('url'))
     await channel.send(embed=embed)
     await self.game_service.update_game_last_news_id(app_id, guild_id, news.get('gid'))
 
   async def _get_image_url(self, news, app_id: int) -> str:
     """Récupère l'URL de l'image à partir du contenu des news."""
     contents = news.get('contents')
-    image_urls = extract_image_urls(contents)
+    image_urls = NewsFormatter.extract_image_urls(contents)
     return image_urls[0] if image_urls else await self.steam_service.get_game_image_url(app_id)
 
-  def _create_news_embed(self, news, game_name: str, image_url: str, published_date) -> NewsEmbed:
+  async def _create_news_embed(self, guild_id: int, game_name: str, image_url: str, published_date, title, description, url) -> NewsEmbed:
     """Crée un embed de news avec les informations fournies."""
+    locale = await self.guild_service.find_guild_locale(guild_id)
     return NewsEmbed(
-      title=news.get('title'),
-      url=news.get('url'),
-      description=news.get('contents'),
+      i18n=self.bot.i18n,
+      locale=locale,
+      title=title,
+      url=url,
+      description=description,
       published_date=published_date,
       game_name=game_name,
       image_url=image_url

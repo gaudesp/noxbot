@@ -1,29 +1,25 @@
 # src/utils/embeds.py
 import discord
-from src.utils.helper import clean_news_content
 
 class NewsEmbed:
-  def __init__(self, title, url, description, published_date=None, game_name=None, image_url=None, small_image_url=None, color=discord.Color.blue()) -> None:
+  def __init__(self, i18n, locale, title, url, description, published_date=None, game_name=None, image_url=None, small_image_url=None, color=discord.Color.blue()) -> None:
     """Initialise un nouvel embed de nouvelles."""
+    self.i18n = i18n
+    self.locale = locale
     self.title = title
     self.url = url
-    self.description = self._clean_description(description)
-    self.published_date = self._format_date(published_date)
+    self.description = description
+    self.published_date = published_date
     self.game_name = game_name
     self.image_url = image_url
     self.small_image_url = small_image_url
     self.color = color
 
-  def _clean_description(self, description: str) -> str:
-    """Nettoie le contenu de la description des nouvelles."""
-    cleaned = clean_news_content(description)
-    return cleaned[:300] + "..." if len(cleaned) > 300 else cleaned
-
   def _format_date(self, published_date) -> str:
     """Formate la date de publication en une chaîne lisible."""
     if published_date:
-      return published_date.strftime("%m/%d/%Y at %I:%M %p")
-    return "Date non spécifiée"
+      return published_date.strftime(self.i18n.translate("embeds.news.date.format", self.locale))
+    return None
 
   def create(self) -> discord.Embed:
     """Crée et renvoie l'embed Discord."""
@@ -40,5 +36,5 @@ class NewsEmbed:
     if self.small_image_url:
       embed.set_thumbnail(url=self.small_image_url)
     if self.published_date:
-      embed.set_footer(text=f"Posted on {self.published_date}")
+      embed.set_footer(text=self.i18n.translate("embeds.news.date.message", self.locale, date=self.published_date))
     return embed

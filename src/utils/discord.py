@@ -29,7 +29,7 @@ class DiscordBot(commands.Bot):
     kwargs.setdefault("max_messages", 2500)
     kwargs.setdefault("status", discord.Status.online)
 
-    self.i18n = I18n(locales_path='src/locales')
+    self.i18n = I18n(self)
     super().__init__(command_prefix='/', **kwargs)
 
   def log(self, message: str, name: str, level: int = INFO, **kwargs) -> None:

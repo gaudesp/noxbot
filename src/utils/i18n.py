@@ -2,12 +2,14 @@
 import os
 import json
 from typing import Dict
+from src.services.guild import GuildService
 
 class I18n:
-  def __init__(self, locales_path: str):
+  def __init__(self, bot):
     """Initialise le traducteur avec le chemin des fichiers de traductions."""
-    self.locales_path = locales_path
+    self.locales_path = 'src/locales'
     self.translations = self.load_translations()
+    self.guild_service = GuildService(bot)
     self.default_locale = 'en'
 
   def load_translations(self) -> Dict[str, Dict[str, str]]:

@@ -1,0 +1,65 @@
+{
+  "cogs": {
+    "game": {
+      "commands": {
+        "nx_follow": {
+          "description": "Suivre un jeu Steam pour recevoir ses actualités dans un canal spécifique.",
+          "messages": {
+            "success": "Les futures actualités du jeu `{game_name}` seront désormais publiées dans {channel}.",
+            "exist": "Le jeu `{game_name}` est déjà suivi dans {channel}.",
+            "not_found": "Veuillez choisir un jeu parmi la liste déroulante."
+          }
+        },
+        "nx_unfollow": {
+          "description": "Ne plus suivre un jeu Steam pour arrêter de recevoir ses actualités.",
+          "messages": {
+            "success": "Le jeu `{game_name}` a été désuivi et ne publiera plus dans {channel}.",
+            "not_followed": "Ce jeu n'est actuellement pas suivi."
+          }
+        },
+        "nx_publish": {
+          "description": "Publier les dernières actualités d'un jeu Steam suivi dans son canal associé (pour les tests).",
+          "messages": {
+            "success": "Les dernières actualités du jeu `{game_name}` ont été publiées avec succès dans {channel}.",
+            "not_found": "Aucune nouvelle actualité n'a pu être trouvée pour le jeu `{game_name}`.",
+            "not_exist": "Ce jeu n'existe pas."
+          }
+        },
+        "nx_list": {
+          "description": "Lister tous les jeux Steam suivis avec leurs canaux respectifs.",
+          "messages": {
+            "success": "\n- **{game_name}** (`{app_id}`) est suivi dans {channel}",
+            "not_followed": "Aucun jeu n'est actuellement suivi."
+          }
+        },
+        "nx_reset": {
+          "description": "Arrêter de suivre tous les jeux Steam pour ne plus recevoir d'actualités.",
+          "messages": {
+            "success": "Les jeux suivants ne seront plus suivis : {games}.",
+            "not_followed": "Aucun jeu n'est actuellement suivi."
+          }
+        }
+      }
+    },
+    "guild": {
+      "commands": {
+        "nx_lang": {
+          "description": "Choisissez votre langue.",
+          "messages": {
+            "success": "La langue a été mise à jour en `{language}`.",
+            "not_found": "La langue `{language}` n'est pas valide.",
+            "not_updated": "La langue n'a pas pu être mise à jour."
+          }
+        }
+      }
+    }
+  },
+  "embeds": {
+    "news": {
+      "date": {
+        "format": "%d/%m/%Y à %Hh%M",
+        "message": "Publié le {date}"
+      }
+    }
+  }
+}

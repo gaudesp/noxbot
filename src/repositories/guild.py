@@ -3,10 +3,9 @@ from sqlalchemy import update
 from sqlalchemy.future import select
 from src.schemas.guild import Guild
 from src.models.guild import Guild as GuildModel
-from src.utils.discord import DiscordBot
 
 class GuildRepository:
-  def __init__(self, bot: DiscordBot) -> None:
+  def __init__(self, bot) -> None:
     """Initialise le dépôt de guildes avec le bot Discord."""
     self.bot = bot
 
@@ -19,6 +18,11 @@ class GuildRepository:
     """Récupère une guilde par son identifiant."""
     guild = await self.bot.database.execute(select(GuildModel).where(GuildModel.id == guild_id))
     return guild.scalar_one_or_none()
+
+  async def get_all(self) -> list[GuildModel]:
+    """Récupère toutes les guildes de la base de données."""
+    games = await self.bot.database.execute(select(GuildModel))
+    return games.scalars().all()
 
   async def update_one(self, guild: Guild, values: dict) -> bool:
     """Met à jour une guilde avec les valeurs fournies."""
