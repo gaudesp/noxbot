@@ -62,7 +62,7 @@ class NewsFormatter:
     """Extrait les liens et remplace les balises de lien par un format simple."""
     content = re.sub(
       r'\[url=(.+?)\](.+?)\[/url\]', 
-      lambda m: re.sub(f'[{re.escape(string.punctuation)}]', '', m.group(2)).replace(':', '') + ":\n" + m.group(1), 
+      lambda m: re.sub(f'[{re.escape(string.punctuation)}]', '', m.group(2)).replace(':', '') + ": " + m.group(1), 
       content
     )
     return content
