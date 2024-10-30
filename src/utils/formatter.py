@@ -24,7 +24,7 @@ class NewsFormatter:
     apply_replacements = NewsFormatter._apply_replacements(format_links)
     limit_length = NewsFormatter._limit_length(apply_replacements, max_length)
     cleaned_content = NewsFormatter._limit_lines(limit_length)
-    if len(limit_length) > len(cleaned_content):
+    if len(apply_replacements) > len(limit_length):
       cleaned_content = cleaned_content + "..."
     return cleaned_content
 

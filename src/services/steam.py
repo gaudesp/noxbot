@@ -49,12 +49,17 @@ class SteamService:
       return data[str(app_id)]['data'].get('name')
     return None
 
-  async def search_game_by_name(self, game_name: str) -> list[dict] | None:
-    """Recherche des jeux par nom et retourne les résultats."""
+  async def search_game_by_name(self, game_name: str) -> list[dict] | list:
+    """Recherche des jeux par nom et retourne les résultats, en excluant les DLC."""
     url = self.steam_app_list_url
     data = await self._fetch_json(url)
     if data:
       app_list = data.get('applist', {}).get('apps', [])
-      matching_games = [app for app in app_list if game_name.lower() in app['name'].lower()]
-      return matching_games[:25] 
-    return None
+      unique_games = {}
+      for app in app_list:
+        if (game_name.lower() in app['name'].lower() 
+          and " - " not in app['name'] 
+          and " – " not in app['name']):
+          unique_games[app['name']] = app
+      return list(unique_games.values())[:25]
+    return []

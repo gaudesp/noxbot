@@ -53,8 +53,6 @@ class GameCog(commands.Cog):
       app_commands.Choice(name=game.name[:100], value=str(game.id))
       for game in matching_games[:25]
     ]
-    if interaction.response.is_done():
-      return []
     await interaction.response.autocomplete(choices)
 
   @app_commands.autocomplete(game='game_app_id_autocomplete')
@@ -62,15 +60,17 @@ class GameCog(commands.Cog):
     """Propose des complétions pour les IDs d'applications de jeux."""
     await interaction.response.defer(thinking=True)
     if not current:
-      return []
+      await interaction.response.autocomplete([])
+      return
     matching_games = await self.steam_service.search_game_by_name(current)
-    choices = [
-      app_commands.Choice(name=game['name'][:100], value=str(game['appid']))
-      for game in matching_games
-    ]
-    if interaction.response.is_done():
-      return []
-    await interaction.response.autocomplete(choices)
+    if matching_games:
+      choices = [
+        app_commands.Choice(name=game['name'][:100], value=str(game['appid']))
+        for game in matching_games
+      ]
+      await interaction.response.autocomplete(choices)
+    else:
+      await interaction.response.autocomplete([])
 
   @app_commands.command(name='nx_follow', description='placeholder')
   @app_commands.autocomplete(game=game_app_id_autocomplete)
