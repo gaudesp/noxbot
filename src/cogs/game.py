@@ -2,10 +2,12 @@
 import discord
 from discord.ext import commands, tasks
 from discord import app_commands
+from src.services.guild import GuildService
 from src.services.game import GameService
 from src.services.steam import SteamService
 from src.services.news import NewsService
 from src.utils.discord import DiscordBot
+from src.utils.i18n import I18n
 
 class GameCog(commands.Cog):
   def __init__(self, bot: DiscordBot) -> None:
@@ -13,6 +15,7 @@ class GameCog(commands.Cog):
     self.bot = bot
     self.steam_service = SteamService()
     self.game_service = GameService(bot)
+    self.guild_service = GuildService(bot)
     self.news_service = NewsService(bot, self.game_service)
     self.check_for_news.start()
 
@@ -31,7 +34,7 @@ class GameCog(commands.Cog):
   @tasks.loop(seconds=3600)
   async def check_for_news(self) -> None:
     """Vérifie les actualités des jeux toutes les heures."""
-    await self.news_service.get_all_news()
+    await self.news_service.send_all_news()
     self.bot.log("Steam games news verified", "discord.check_for_news")
 
   @check_for_news.before_loop
@@ -41,7 +44,7 @@ class GameCog(commands.Cog):
     self.check_for_news.change_interval(seconds=self.bot.settings.check_interval)
 
   @app_commands.autocomplete(game='game_name_autocomplete')
-  async def game_name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
+  async def game_name_autocomplete(self, interaction: discord.Interaction, current: str) -> None:
     """Propose des complétions pour les noms de jeux en fonction de l'entrée de l'utilisateur."""
     await interaction.response.defer(thinking=True)
     games = await self.game_service.find_games_for_guild(interaction.guild.id)
@@ -53,86 +56,106 @@ class GameCog(commands.Cog):
     await interaction.response.autocomplete(choices)
 
   @app_commands.autocomplete(game='game_app_id_autocomplete')
-  async def game_app_id_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
+  async def game_app_id_autocomplete(self, interaction: discord.Interaction, current: str) -> None:
     """Propose des complétions pour les IDs d'applications de jeux."""
     await interaction.response.defer(thinking=True)
-    if not current:
-      return []
-    matching_games = await self.steam_service.search_game_by_name(current)
-    choices = [
-      app_commands.Choice(name=game['name'][:100], value=str(game['appid']))
-      for game in matching_games
-    ]
-    await interaction.response.autocomplete(choices)
+    if current:
+      matching_games = await self.steam_service.search_game_by_name(current)
+    else:
+      matching_games = self.steam_service.get_popular_games()
+
+    if matching_games:
+      choices = [
+        app_commands.Choice(name=game['name'][:100], value=str(game['appid']))
+        for game in matching_games
+      ]
+      await interaction.response.autocomplete(choices)
+    else:
+      await interaction.response.autocomplete([])
 
   @app_commands.command(name='nx_follow', description='placeholder')
   @app_commands.autocomplete(game=game_app_id_autocomplete)
   @app_commands.checks.has_permissions(administrator=True)
   async def follow(self, interaction: discord.Interaction, game: str, channel: discord.TextChannel) -> None:
     """Permet de suivre un jeu spécifique."""
-    game_exist = await self.game_service.find_game_for_guild(game, interaction.guild.id)
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    guild_id = interaction.guild.id
+    locale = await self.guild_service.find_guild_locale(guild_id)
+    game_exist = await self.game_service.find_game_for_guild(game, guild_id)
     if game_exist:
-      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_follow.messages.exist", game_name=game_exist.name, channel=game_exist.channel), ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_follow.messages.exist", locale, game_name=game_exist.name, channel=game_exist.channel))
       return
 
     game_found = await self.steam_service.get_game_name(game)
     if not game_found:
-      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_follow.messages.not_found"), ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_follow.messages.not_found", locale))
       return
     
     new_game = await self.game_service.add_game(game, interaction.guild.id, channel.id, game_found)
-    await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_follow.messages.success", game_name=new_game.name, channel=new_game.channel), ephemeral=True)
+    await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_follow.messages.success", locale, game_name=new_game.name, channel=new_game.channel))
 
   @app_commands.command(name='nx_unfollow', description='placeholder')
   @app_commands.autocomplete(game=game_name_autocomplete)
   @app_commands.checks.has_permissions(administrator=True)
   async def unfollow_game(self, interaction: discord.Interaction, game: str) -> None:
     """Permet d'arrêter de suivre un jeu spécifique."""
-    game_followed = await self.game_service.delete_game(app_id=game, guild_id=interaction.guild.id)
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    guild_id = interaction.guild.id
+    locale = await self.guild_service.find_guild_locale(guild_id)
+    game_followed = await self.game_service.delete_game(game, guild_id)
     if not game_followed:
-      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_unfollow.messages.not_followed"), ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_unfollow.messages.not_followed", locale))
       return
     
-    await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_unfollow.messages.success", game_name=game_followed.name, channel=game_followed.channel), ephemeral=True)
+    await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_unfollow.messages.success", locale, game_name=game_followed.name, channel=game_followed.channel))
 
   @app_commands.command(name='nx_publish', description='placeholder')
   @app_commands.autocomplete(game=game_name_autocomplete)
   @app_commands.checks.has_permissions(administrator=True)
   async def publish_news(self, interaction: discord.Interaction, game: str) -> None:
     """Publie les dernières nouvelles d'un jeu suivi."""
-    game_exist = await self.game_service.find_game_for_guild(game, interaction.guild.id)
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    guild_id = interaction.guild.id
+    locale = await self.guild_service.find_guild_locale(guild_id)
+    game_exist = await self.game_service.find_game_for_guild(game, guild_id)
     if not game_exist:
-      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_publish.messages.not_exist", game_name=game), ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.not_exist", locale, game_name=game))
       return
 
-    news_found = await self.news_service.get_last_news(game_exist)
+    news_found = await self.news_service.send_last_news(game_exist)
     if not news_found:
-      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_publish.messages.not_found", game_name=game_exist.name), ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.not_found", locale, game_name=game_exist.name))
       return
-
-    await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_publish.messages.success", game_name=game_exist.name, channel=game_exist.channel), ephemeral=True)
+    
+    await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.success", locale, game_name=game_exist.name, channel=game_exist.channel))
 
   @app_commands.command(name='nx_list', description='placeholder')
   @app_commands.checks.has_permissions(administrator=True)
   async def list_games(self, interaction: discord.Interaction) -> None:
     """Liste tous les jeux suivis pour le serveur."""
-    games_followed = await self.game_service.find_games_for_guild(guild_id=interaction.guild.id)
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    guild_id = interaction.guild.id
+    locale = await self.guild_service.find_guild_locale(guild_id)
+    games_followed = await self.game_service.find_games_for_guild(guild_id)
     if not games_followed:
-      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_list.messages.not_followed"), ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_list.messages.not_followed", locale))
       return
     
-    await interaction.response.send_message(''.join([self.bot.translate("cogs.game.commands.nx_list.messages.success", game_name=game.name, app_id=game.id, channel=game.channel) for game in games_followed]), ephemeral=True)
+    await interaction.followup.send(''.join([self.bot.i18n.translate("cogs.game.commands.nx_list.messages.success", locale, game_name=game.name, app_id=game.id, channel=game.channel) for game in games_followed]))
 
   @app_commands.command(name='nx_reset', description='placeholder')
   @app_commands.checks.has_permissions(administrator=True)
   async def reset_games(self, interaction: discord.Interaction) -> None:
     """Réinitialise la liste des jeux suivis pour le serveur."""
-    games_followed = await self.game_service.delete_games(interaction.guild.id)
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    guild_id = interaction.guild.id
+    locale = await self.guild_service.find_guild_locale(guild_id)
+    games_followed = await self.game_service.delete_games(guild_id)
     if not games_followed:
-      await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_reset.messages.not_followed"), ephemeral=True)
+      await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_reset.messages.not_followed", locale))
       return
     
-    await interaction.response.send_message(self.bot.translate("cogs.game.commands.nx_reset.messages.success", games=games_followed), ephemeral=True)
+    await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_reset.messages.success", locale, games=games_followed))
 
 async def setup(bot: DiscordBot) -> None:
   """Configure le cog de jeux avec le bot."""

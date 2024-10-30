@@ -1,13 +1,15 @@
-# src/utils/translator.py
+# src/utils/i18n.py
 import os
 import json
 from typing import Dict
+from src.services.guild import GuildService
 
-class Translator:
-  def __init__(self, locales_path: str):
+class I18n:
+  def __init__(self, bot):
     """Initialise le traducteur avec le chemin des fichiers de traductions."""
-    self.locales_path = locales_path
+    self.locales_path = 'src/locales'
     self.translations = self.load_translations()
+    self.guild_service = GuildService(bot)
     self.default_locale = 'en'
 
   def load_translations(self) -> Dict[str, Dict[str, str]]:
@@ -20,6 +22,10 @@ class Translator:
   def get_locale_files(self) -> list[str]:
     """Retourne une liste des fichiers de langue disponibles dans le répertoire spécifié."""
     return [f for f in os.listdir(self.locales_path) if f.endswith('.json')]
+  
+  def get_locales(self) -> list[str]:
+    """Retourne la liste des locales disponibles."""
+    return list(self.translations.keys())
 
   def extract_locale(self, filename: str) -> str:
     """Extrait la locale d'un nom de fichier en supprimant l'extension."""
@@ -46,7 +52,3 @@ class Translator:
       return message_id
     found_message = self.find_message(message_id, message)
     return found_message.format(**kwargs) if isinstance(found_message, str) else found_message or message_id
-
-  def __call__(self, message_id: str, locale: str = None, **kwargs) -> str:
-    """Permet d'utiliser l'instance de la classe comme une fonction pour traduire un message."""
-    return self.translate(message_id, locale, **kwargs)

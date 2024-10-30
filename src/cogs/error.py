@@ -37,11 +37,11 @@ class ErrorCog(commands.Cog):
     elif isinstance(ctx_or_interaction, discord.Interaction):
       await self._send_error_message(interaction=ctx_or_interaction, message=str(error))
 
-  async def _send_error_message(self, ctx=None, interaction=None, message=None) -> None:
+  async def _send_error_message(self, ctx: commands.Context=None, interaction=None, message=None) -> None:
     """Envoie un message d'erreur à l'utilisateur selon le contexte."""
     if ctx:
       try:
-        await ctx.send(self.default_error_message)
+        await ctx.send(self.default_error_message, ephemeral=True)
       except discord.errors.Forbidden:
         self.bot.log("Bot does not have permission to send messages in this channel.", "discord._send_error_message", ERROR)
     elif interaction:

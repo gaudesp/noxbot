@@ -31,7 +31,7 @@ class GameService:
   async def find_games_for_guild(self, guild_id: int) -> list[GameModel]:
     """Récupère tous les jeux associés à une guilde spécifique."""
     games = await self.game_repository.get_all_by_guild(guild_id)
-    return games
+    return sorted(games, key=lambda game: game.name.lower())
 
   async def update_game_last_news_id(self, app_id: int, guild_id: int, last_news_id: str) -> bool:
     """Met à jour l'identifiant de la dernière nouvelle d'un jeu."""

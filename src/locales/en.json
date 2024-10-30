@@ -7,7 +7,7 @@
           "messages": {
             "success": "Future news for the game `{game_name}` will now be posted in {channel}.",
             "exist": "The game `{game_name}` is already being followed in {channel}.",
-            "not_found": "This game is not available for news tracking."
+            "not_found": "Please choose a game from the dropdown list."
           }
         },
         "nx_unfollow": {
@@ -21,8 +21,8 @@
           "description": "Publish the latest news of a followed Steam game in its associated channel (for testing).",
           "messages": {
             "success": "The latest news for the game `{game_name}` has been successfully published in {channel}.",
-            "not_found": "No news could be found for the game `{game_name}`.",
-            "not_exist": "This game does not exist."
+            "not_found": "No new news could be found for the game `{game_name}`.",
+            "not_exist": "The game `{game_name}` does not exist."
           }
         },
         "nx_list": {
@@ -39,6 +39,26 @@
             "not_followed": "No games are currently being followed."
           }
         }
+      }
+    },
+    "guild": {
+      "commands": {
+        "nx_lang": {
+          "description": "Choose your language.",
+          "messages": {
+            "success": "The langage has been updated to `{language}`.",
+            "not_found": "The language `{language}` is not valid.",
+            "not_updated": "The language could not be updated."
+          }
+        }
+      }
+    }
+  },
+  "embeds": {
+    "news": {
+      "date": {
+        "format": "%m/%d/%Y at %I:%M %p",
+        "message": "Posted on {date}"
       }
     }
   }
