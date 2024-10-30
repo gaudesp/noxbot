@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 from datetime import datetime
+from logging import WARNING
 from typing import Dict, List, Optional, Tuple
 from src.services.guild import GuildService
 from src.utils.embed import NewsEmbed
@@ -48,7 +49,7 @@ class NewsService:
       if news and 'gid' in news:
         return await self._process_news_for_games(news, game_instances, check_last_news)
     except Exception as e:
-      raise ValueError(f"Failed to retrieve news for app_id {app_id}: {str(e)}")
+      self.bot.log(f"Failed to retrieve news for app_id {app_id}: {e}", "discord.check_news_for_game", WARNING)
     return False
 
   async def _process_news_for_games(self, news: Dict, game_instances: List[Game], check_last_news: Optional[bool]) -> bool:
