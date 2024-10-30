@@ -122,14 +122,10 @@ class GameCog(commands.Cog):
       return
 
     news_found = await self.news_service.send_last_news(game_exist)
-    if news_found is False:
+    if not news_found:
       await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.not_found", locale, game_name=game_exist.name), ephemeral=True)
       return
     
-    if news_found is None:
-      await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.error", locale, game_name=game_exist.name), ephemeral=True)
-      return
-
     await interaction.followup.send(self.bot.i18n.translate("cogs.game.commands.nx_publish.messages.success", locale, game_name=game_exist.name, channel=game_exist.channel), ephemeral=True)
 
   @app_commands.command(name='nx_list', description='placeholder')

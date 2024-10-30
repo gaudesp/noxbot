@@ -36,5 +36,6 @@ class NewsEmbed:
     if self.small_image_url:
       embed.set_thumbnail(url=self.small_image_url)
     if self.published_date:
-      embed.set_footer(text=self.i18n.translate("embeds.news.date.message", self.locale, date=self.published_date))
+      formatted_date = self._format_date(self.published_date)
+      embed.set_footer(text=self.i18n.translate("embeds.news.date.message", self.locale, date=formatted_date))
     return embed
