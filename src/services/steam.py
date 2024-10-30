@@ -1,4 +1,7 @@
 # src/services/steam.py
+import difflib
+import json
+import re
 import aiohttp
 
 class SteamService:
@@ -8,6 +11,7 @@ class SteamService:
     self.steam_store_url = "http://store.steampowered.com/api/appdetails"
     self.steam_app_list_url = "http://api.steampowered.com/ISteamApps/GetAppList/v2/"
     self.format = "json"
+    self.steam_app_list_data = None
 
   async def _fetch_json(self, url: str, params: dict = None) -> dict | None:
     """Récupère les données JSON d'une URL donnée."""
@@ -49,17 +53,35 @@ class SteamService:
       return data[str(app_id)]['data'].get('name')
     return None
 
+  async def get_steam_app_list(self) -> dict | None:
+    """Récupère et met en cache la liste complète des applications Steam."""
+    if not self.steam_app_list_data:
+      self.steam_app_list_data = await self._fetch_json(self.steam_app_list_url)
+    return self.steam_app_list_data
+
   async def search_game_by_name(self, game_name: str) -> list[dict] | list:
-    """Recherche des jeux par nom et retourne les résultats, en excluant les DLC."""
-    url = self.steam_app_list_url
-    data = await self._fetch_json(url)
-    if data:
-      app_list = data.get('applist', {}).get('apps', [])
-      unique_games = {}
-      for app in app_list:
-        if (game_name.lower() in app['name'].lower() 
-          and " - " not in app['name'] 
-          and " – " not in app['name']):
-          unique_games[app['name']] = app
-      return list(unique_games.values())[:25]
-    return []
+    """Recherche des jeux par nom et retourne les résultats, classés par proximité avec le nom recherché."""
+    normalized_game_name = re.sub(r"[-–_]", " ", game_name).lower()
+    data = await self.get_steam_app_list()
+    if not data:
+      return []
+    app_list = data.get('applist', {}).get('apps', [])
+    unique_games = {}
+    for app in app_list:
+      app_name = app['name']
+      normalized_app_name = re.sub(r"[-–_]", " ", app_name).lower()
+      if normalized_game_name in normalized_app_name and " - " not in app_name and " – " not in app_name:
+        similarity = difflib.SequenceMatcher(None, normalized_game_name, normalized_app_name).ratio()
+        if similarity > 0.4:
+          unique_games[app_name] = (similarity, app)
+    sorted_games = sorted(unique_games.values(), key=lambda x: x[0], reverse=True)
+    return [game[1] for game in sorted_games[:25]]
+
+  def get_popular_games(self) -> list[dict]:
+    """Récupère la liste des jeux populaires depuis un fichier JSON et les retourne."""
+    try:
+      with open('src/data/default_games.json', 'r', encoding='utf-8') as file:
+        popular_games = json.load(file)
+      return popular_games
+    except (FileNotFoundError, json.JSONDecodeError):
+      return []
