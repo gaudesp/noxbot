@@ -24,12 +24,6 @@ class GuildService:
     guild = await self.guild_repository.get_one_by_guild(guild_id)
     return guild.locale if guild else None
 
-  async def find_guild_data(self, interaction: discord.Interaction):
-    """Récupère le guild_id et la locale pour la guilde."""
-    guild_id = interaction.guild.id
-    locale = await self.find_guild_locale(guild_id)
-    return guild_id, locale
-
   async def update_guild_locale(self, discord_guild, locale: str) -> bool:
     """Met à jour la locale d'une guilde."""
     guild = await self.find_guild(discord_guild.id)
