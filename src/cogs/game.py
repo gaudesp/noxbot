@@ -29,13 +29,13 @@ class GameCog(commands.Cog):
     games = {(game.id, game.name) for game in await self.game_service.find_all_games()}
     games_info = ', '.join(f'{name} (ID: {id})' for id, name in games)
     games_total = len(games)
-    self.bot.log(f"{games_total} followed games {':' if games_total > 0 else ''} {games_info}", "discord.followed_games")
+    self.bot.log(message=f"{games_total} followed games {':' if games_total > 0 else ''} {games_info}", name="discord.followed_games")
 
   @tasks.loop(seconds=3600)
   async def check_for_news(self) -> None:
     """Vérifie les actualités des jeux toutes les heures."""
     await self.news_service.send_all_news()
-    self.bot.log("Steam games news verified", "discord.check_for_news")
+    self.bot.log(message="Steam games news verified", name="discord.check_for_news")
 
   @check_for_news.before_loop
   async def before_check_for_news(self) -> None:
@@ -43,35 +43,23 @@ class GameCog(commands.Cog):
     await self.bot.wait_until_ready()
     self.check_for_news.change_interval(seconds=self.bot.settings.check_interval)
 
-  @app_commands.autocomplete(game='game_name_autocomplete')
-  async def game_name_autocomplete(self, interaction: discord.Interaction, current: str) -> None:
+  async def game_name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
     """Propose des complétions pour les noms de jeux en fonction de l'entrée de l'utilisateur."""
     await interaction.response.defer(thinking=True)
     games = await self.game_service.find_games_for_guild(interaction.guild.id)
-    matching_games = [game for game in games if current.lower() in game.name.lower()]
-    choices = [
+    return [
       app_commands.Choice(name=game.name[:100], value=str(game.id))
-      for game in matching_games[:25]
-    ]
-    await interaction.response.autocomplete(choices)
+      for game in games if current.lower() in game.name.lower()
+    ][:25] if games else []
 
-  @app_commands.autocomplete(game='game_app_id_autocomplete')
-  async def game_app_id_autocomplete(self, interaction: discord.Interaction, current: str) -> None:
+  async def game_app_id_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
     """Propose des complétions pour les IDs d'applications de jeux."""
     await interaction.response.defer(thinking=True)
-    if current:
-      matching_games = await self.steam_service.search_game_by_name(current)
-    else:
-      matching_games = self.steam_service.get_popular_games()
-
-    if matching_games:
-      choices = [
-        app_commands.Choice(name=game['name'][:100], value=str(game['appid']))
-        for game in matching_games
-      ]
-      await interaction.response.autocomplete(choices)
-    else:
-      await interaction.response.autocomplete([])
+    games = await self.steam_service.search_game_by_name(current) if current else self.steam_service.get_popular_games()
+    return [
+      app_commands.Choice(name=game.get('name')[:100], value=str(game.get('appid')))
+      for game in games
+    ][:25] if games else []
 
   @app_commands.command(name='nx_follow', description='placeholder')
   @app_commands.autocomplete(game=game_app_id_autocomplete)

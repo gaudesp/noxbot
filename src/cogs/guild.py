@@ -24,17 +24,14 @@ class GuildCog(commands.Cog):
     await self.guild_service.delete_guild(guild.id)
     self.bot.log(f"Guild {guild.name} (ID: {guild.id}) has removed {self.bot_name} to its server", "discord.on_guild_remove")
 
-  @app_commands.autocomplete(locale='locale_autocomplete')
   async def locale_autocomplete(self, interaction: discord.Interaction, current: str) -> None:
     """Fournit des suggestions d'autocomplétion pour la locale."""
     await interaction.response.defer(thinking=True)
-    matching_locales = self.bot.i18n.get_locales()
-    choices = [
+    locales = self.bot.i18n.get_locales()
+    return [
       app_commands.Choice(name=locale, value=str(locale))
-      for locale in matching_locales if current.lower() in locale.lower()
-    ]
-    if not interaction.response.is_done():
-      await interaction.response.autocomplete(choices)
+      for locale in locales if current.lower() in locale.lower()
+    ][:25] if locales else []
 
   @app_commands.command(name='nx_lang', description='placeholder')
   @app_commands.autocomplete(locale=locale_autocomplete)
