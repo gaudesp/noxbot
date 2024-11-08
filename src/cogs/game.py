@@ -45,7 +45,6 @@ class GameCog(commands.Cog):
 
   async def game_name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
     """Propose des complétions pour les noms de jeux en fonction de l'entrée de l'utilisateur."""
-    await interaction.response.defer(thinking=True)
     games = await self.game_service.find_games_for_guild(interaction.guild.id)
     return [
       app_commands.Choice(name=game.name[:100], value=str(game.id))
@@ -54,7 +53,6 @@ class GameCog(commands.Cog):
 
   async def game_app_id_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
     """Propose des complétions pour les IDs d'applications de jeux."""
-    await interaction.response.defer(thinking=True)
     games = await self.steam_service.search_game_by_name(current) if current else self.steam_service.get_popular_games()
     return [
       app_commands.Choice(name=game.get('name')[:100], value=str(game.get('appid')))

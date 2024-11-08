@@ -26,7 +26,6 @@ class GuildCog(commands.Cog):
 
   async def guild_locale_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
     """Fournit des suggestions d'autocomplétion pour la locale."""
-    await interaction.response.defer(thinking=True)
     locales = self.bot.i18n.get_locales()
     return [
       app_commands.Choice(name=locale, value=str(locale))

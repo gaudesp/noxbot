@@ -59,9 +59,10 @@ class SteamService:
       self.steam_app_list_data = await self._fetch_json(self.steam_app_list_url)
     return self.steam_app_list_data
 
-  async def search_game_by_name(self, game_name: str) -> list[dict] | list:
+  async def search_game_by_name(self, game_name: str) -> list[dict]:
     """Recherche des jeux par nom et retourne les résultats, classés par proximité avec le nom recherché."""
-    normalized_game_name = re.sub(r"[-–_]", " ", game_name).lower()
+    normalized_game_name = re.sub(r"[-–_:,.]", " ", game_name).lower()
+    normalized_game_name = re.sub(r"\s+", " ", normalized_game_name).strip()
     data = await self.get_steam_app_list()
     if not data:
       return []
@@ -69,7 +70,8 @@ class SteamService:
     unique_games = {}
     for app in app_list:
       app_name = app['name']
-      normalized_app_name = re.sub(r"[-–_]", " ", app_name).lower()
+      normalized_app_name = re.sub(r"[-–_:,.]", " ", app_name).lower() 
+      normalized_app_name = re.sub(r"\s+", " ", normalized_app_name).strip()
       if normalized_game_name in normalized_app_name and " - " not in app_name and " – " not in app_name:
         similarity = difflib.SequenceMatcher(None, normalized_game_name, normalized_app_name).ratio()
         if similarity > 0.4:
