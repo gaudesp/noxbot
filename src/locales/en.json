@@ -28,7 +28,7 @@
         "nx_list": {
           "description": "List all followed Steam games with their respective channels.",
           "messages": {
-            "success": "\n- **{game_name}** (`{app_id}`) is being followed in {channel}",
+            "success": "\n➥ **{game_name}** (`{app_id}`) ➜ {channel}",
             "not_followed": "No games are currently being followed."
           }
         },

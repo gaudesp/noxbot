@@ -28,7 +28,7 @@
         "nx_list": {
           "description": "Lister tous les jeux Steam suivis avec leurs canaux respectifs.",
           "messages": {
-            "success": "\n- **{game_name}** (`{app_id}`) est suivi dans {channel}",
+            "success": "\n➥ **{game_name}** (`{app_id}`) ➜ {channel}",
             "not_followed": "Aucun jeu n'est actuellement suivi."
           }
         },
