@@ -3,7 +3,33 @@ from typing import Optional
 
 from .dotenv import setting
 
-class Logger:
+COLORS = {
+  'DEBUG': '\033[94m',   # Bleu
+  'INFO': '\033[32m',    # Vert
+  'WARNING': '\033[33m', # Jaune
+  'ERROR': '\033[31m',   # Rouge
+  'CRITICAL': '\033[41m',# Fond rouge
+  'DEFAULT': '\033[97m', # Blanc
+  'GREY': '\033[90m', # Gris
+  'VIOLET': '\033[35m',  # Violet
+}
+RESET = '\033[0m'  # Réinitialisation des couleurs
+
+# Formattage avec les couleurs appliquées dynamiquement en fonction du levelname
+LOG_FORMAT = (
+  f"{COLORS['GREY']}{{asctime}}{RESET} " # asctime en gris
+  f"{{levelname}} " # Couleur géré dynamiquement
+  f"{COLORS['VIOLET']}{{name}}{RESET} "  # name en violet
+  f"{COLORS['DEFAULT']}{{message}}{RESET}"  # message en blanc
+)
+
+class ColoredFormatter(logging.Formatter):
+  def format(self, record):
+    log_message = super().format(record)
+    levelname_color = COLORS.get(record.levelname, COLORS['DEFAULT'])
+    return log_message.replace(record.levelname, f"{levelname_color}{record.levelname}{RESET}")
+
+class Logger(logging.Logger):
   """Classe utilitaire pour configurer des loggers génériques et réutilisables."""
 
   def __init__(
@@ -68,36 +94,9 @@ class Logger:
     """
     return logging.Formatter(fmt=self.log_format, datefmt=self.date_format, style="{")
       
-  def _create_colored_formatter(self) -> logging.Formatter:
-      """Crée un formatteur avec des couleurs pour la console."""
-      COLORS = {
-          'DEBUG': '\033[94m',   # Bleu
-          'INFO': '\033[32m',    # Vert
-          'WARNING': '\033[33m', # Jaune
-          'ERROR': '\033[31m',   # Rouge
-          'CRITICAL': '\033[41m',# Fond rouge
-          'DEFAULT': '\033[97m', # Blanc
-          'GREY': '\033[90m', # Gris
-          'VIOLET': '\033[35m',  # Violet\033[90m
-      }
-      RESET = '\033[0m'  # Réinitialisation des couleurs
-
-      # Formattage avec les couleurs appliquées dynamiquement en fonction du levelname
-      LOG_FORMAT = (
-          f"{COLORS['GREY']}{{asctime}}{RESET} "  # asctime en gris
-          f"{{levelname}} "  # Pas de couleur directement, on la gère dynamiquement
-          f"{COLORS['VIOLET']}{{name}}{RESET} "  # name en violet
-          f"{COLORS['DEFAULT']}{{message}}{RESET}"  # message en blanc
-      )
-
-      # Appliquer la couleur en fonction du niveau de log dans un processus de substitution
-      class ColoredFormatter(logging.Formatter):
-          def format(self, record):
-              log_message = super().format(record)
-              levelname_color = COLORS.get(record.levelname, COLORS['DEFAULT'])
-              return log_message.replace(record.levelname, f"{levelname_color}{record.levelname}{RESET}")
-
-      return ColoredFormatter(fmt=LOG_FORMAT, datefmt=self.date_format, style='{')
+  def _create_colored_formatter(self) -> ColoredFormatter:
+    """Crée un formatteur avec des couleurs pour la console."""
+    return ColoredFormatter(fmt=LOG_FORMAT, datefmt=self.date_format, style='{')
 
   def _create_stream_handler(self) -> logging.StreamHandler:
     """
@@ -125,4 +124,4 @@ class Logger:
     self._file_handler.setFormatter(self._basic_formatter)
     return self._file_handler
 
-logger = Logger(log_file=setting.get_log_file())
+logger = Logger(log_file=setting.log_file)

@@ -17,53 +17,7 @@ class Setting:
     self.log_file: Optional[str] = self._get_env_var('LOG_FILE')
     self.locales_path: str = self._get_env_var('LOCALES_PATH', 'locales')
     self.default_locale: str = self._get_env_var('DEFAULT_LOCALE', 'en')
-
-  # Public methods
-
-  def get_discord_token(self) -> str:
-    """
-    Retourne le token Discord.
-
-    :return: Le token Discord.
-    :rtype: str
-    """
-    return self.discord_token
-
-  def get_db_path(self) -> str:
-    """
-    Retourne le chemin vers la base de données.
-
-    :return: Le chemin vers la base de données.
-    :rtype: str
-    """
-    return self.db_path
-
-  def get_log_file(self) -> Optional[str]:
-    """
-    Retourne le chemin vers le fichier de log.
-
-    :return: Le chemin du fichier de log ou None.
-    :rtype: Optional[str]
-    """
-    return self.log_file
-
-  def get_locales_path(self) -> str:
-    """
-    Retourne le chemin vers le répertoire des locales.
-
-    :return: Le chemin des locales.
-    :rtype: str
-    """
-    return self.locales_path
-
-  def get_default_locale(self) -> str:
-    """
-    Retourne la locale par défaut.
-
-    :return: La locale par défaut.
-    :rtype: str
-    """
-    return self.default_locale
+    self.discord_owner_id: str = self._get_env_var('DISCORD_OWNER_ID')
 
   # Private methods
 

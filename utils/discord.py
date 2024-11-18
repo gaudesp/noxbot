@@ -4,13 +4,13 @@ from datetime import datetime
 from discord.ext import commands
 from .database import Database, database
 from .logging import logger
+from .dotenv import setting
 
 log = logger.get_logger(__name__)
 
 class DiscordBot(commands.Bot):
   """
   Classe utilitaire pour gérer un bot Discord.
-  Fournit les événements de base : démarrage, fermeture, et préparation initiale.
   """
   database: Database = database
   uptime: datetime = datetime.now()
@@ -28,10 +28,11 @@ class DiscordBot(commands.Bot):
     kwargs.setdefault("max_messages", 2500)
     kwargs.setdefault("status", discord.Status.online)
     super().__init__(command_prefix='/', **kwargs)
+    self.owner_id = setting.discord_owner_id
 
   async def on_ready(self) -> None:
     """
-    Appelé lorsque le bot est prêt et connecté à Discord.
+    Appelé lorsque le bot est prêt.
 
     :return: None
     """
@@ -39,12 +40,13 @@ class DiscordBot(commands.Bot):
 
   async def setup_hook(self) -> None:
     """
-    Configuration initiale avant de commencer à écouter les événements.
+    Configuration initiale.
 
     :return: None
     """
-    await self.database.setup()
+    await self._init_database()
     await self._load_extensions()
+    await self._sync_commands()
     log.info("Initial BOT setup completed.")
 
   async def close(self) -> None:
@@ -57,8 +59,16 @@ class DiscordBot(commands.Bot):
     await self.database.close()
     await super().close()
 
-  async def _load_extensions(self):
-    """Charge les extensions en parcourant les dossiers et sous-dossiers de 'cogs'."""
+  async def _init_database(self) -> None:
+    await self.database.setup()
+    log.info("Database connection established")
+
+  async def _load_extensions(self) -> None:
+    """
+    Charge les extensions.
+
+    :return: None
+    """
     for cog_folder in os.listdir('./src/cogs'):
       cog_path = os.path.join('./src/cogs', cog_folder)
       if os.path.isdir(cog_path):
@@ -75,6 +85,14 @@ class DiscordBot(commands.Bot):
         if cog_files_loaded:
           log.info(f"{cog_folder.capitalize()} cog loaded with {len(cog_files_loaded)} file(s)")
 
+  async def _sync_commands(self) -> None:
+    """
+    Synchronise les commandes.
+
+    :return: None
+    """
+    synced = await self.tree.sync()
+    log.info(f"{len(synced)} commands synced : {', '.join(command.name for command in synced)}")
 
 bot = DiscordBot()
 logger.get_logger("discord")

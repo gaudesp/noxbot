@@ -10,7 +10,7 @@ log = logger.get_logger('main')
 if __name__ == "__main__":
   log.info('Starting BOT...')
   bot.run(
-    setting.get_discord_token(),
+    setting.discord_token,
     log_handler=None
   )
   log.info('BOT has been closed!')

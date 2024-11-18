@@ -108,5 +108,5 @@ class Database:
     """
     return sessionmaker(bind=self.engine, class_=AsyncSession, expire_on_commit=False)
 
-database = Database(db_path=setting.get_db_path())
+database = Database(db_path=setting.db_path)
 logger.get_logger("sqlalchemy")
