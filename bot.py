@@ -5,7 +5,7 @@ from utils.discord import bot
 from utils.logging import logger
 
 sys.path.append(os.path.abspath('./src'))
-log = logger.get_logger('main')
+log = logger.get_logger('bot')
 
 if __name__ == "__main__":
   log.info('Starting BOT...')
