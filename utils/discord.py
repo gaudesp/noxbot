@@ -1,3 +1,4 @@
+import os
 import discord
 from datetime import datetime
 from discord.ext import commands
@@ -11,7 +12,6 @@ class DiscordBot(commands.Bot):
   Classe utilitaire pour gérer un bot Discord.
   Fournit les événements de base : démarrage, fermeture, et préparation initiale.
   """
-
   database: Database = database
   uptime: datetime = datetime.now()
 
@@ -44,6 +44,7 @@ class DiscordBot(commands.Bot):
     :return: None
     """
     await self.database.setup()
+    await self._load_extensions()
     log.info("Initial BOT setup completed.")
 
   async def close(self) -> None:
@@ -55,6 +56,25 @@ class DiscordBot(commands.Bot):
     log.info("Closing BOT...")
     await self.database.close()
     await super().close()
+
+  async def _load_extensions(self):
+    """Charge les extensions en parcourant les dossiers et sous-dossiers de 'cogs'."""
+    for cog_folder in os.listdir('./src/cogs'):
+      cog_path = os.path.join('./src/cogs', cog_folder)
+      if os.path.isdir(cog_path):
+        cog_files_loaded = []
+        for root, _, files in os.walk(cog_path):
+          for filename in files:
+            if filename.endswith('.py') and filename != '__init__.py':
+              extension = f"cogs.{os.path.relpath(root, './src/cogs').replace(os.sep, '.')}.{filename[:-3]}"
+              try:
+                await self.load_extension(extension)
+                cog_files_loaded.append(extension)
+              except Exception as e:
+                log.error(f"Failed to load {extension}: {e}")
+        if cog_files_loaded:
+          log.info(f"{cog_folder.capitalize()} cog loaded with {len(cog_files_loaded)} file(s)")
+
 
 bot = DiscordBot()
 logger.get_logger("discord")
