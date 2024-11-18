@@ -6,9 +6,9 @@ Base = declarative_base()
 class FollowedGame(Base):
   __tablename__ = 'followed_games'
   id = Column(Integer, primary_key=True, autoincrement=True)
+  discord_channel_id = Column(String, nullable=False)
   server_id = Column(Integer, ForeignKey('servers.id'), nullable=False)
   game_id = Column(Integer, ForeignKey('games.id'), nullable=False)
-  channel_id = Column(String, nullable=False)
   last_news_id = Column(Integer, ForeignKey('news.id'), nullable=True)
   last_news = relationship("News", backref="followed_games", foreign_keys=[last_news_id])
 
