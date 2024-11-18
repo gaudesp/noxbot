@@ -2,7 +2,7 @@ import os
 import json
 from typing import Optional
 
-from .setting import setting
+from .dotenv import setting
 
 class Translator:
   """Classe utilitaire pour gérer les traductions dans différentes langues."""

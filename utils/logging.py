@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from .setting import setting
+from .dotenv import setting
 
 class Logger:
   """Classe utilitaire pour configurer des loggers génériques et réutilisables."""

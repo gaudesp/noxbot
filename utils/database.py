@@ -3,7 +3,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, AsyncEngine  # Importer AsyncEngine
 from sqlalchemy.engine import Result
-from .setting import setting
+from .dotenv import setting
 
 Base = declarative_base()
 class Database:
@@ -43,7 +43,7 @@ class Database:
     """
     async with self.Session() as session:
       result: Result = await session.execute(query)
-      await session.commit()  # Pas toujours nécessaire selon le type de requête
+      await session.commit()
       return result
 
   async def insert(self, entity: Any) -> Any:
