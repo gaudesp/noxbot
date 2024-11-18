@@ -33,7 +33,10 @@ class Logger:
     self.log_format: str = log_format or "[{asctime}] [{levelname}] {name}: {message}"
     self.date_format: str = date_format or "%Y-%m-%d %H:%M:%S"
     self.log_file: Optional[str] = log_file
-    self._formatter: logging.Formatter = self._create_formatter()
+
+    self.formatter: logging.Formatter = self._create_formatter()
+    self.file_handler: logging.FileHandler = self._create_file_handler()
+    self.stream_handler: logging.StreamHandler = self._create_stream_handler()
 
   # Public methods
 
@@ -48,15 +51,11 @@ class Logger:
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-
-    # Ajout des gestionnaires uniquement si le logger n'en a pas déjà.
-    if not logger.hasHandlers():
-      logger.addHandler(self._create_console_handler())
-      file_handler = self._create_file_handler()
-      if file_handler:
-        logger.addHandler(file_handler)
+    logger.addHandler(self.stream_handler)
+    if self.file_handler:
+        logger.addHandler(self.file_handler)
     return logger
-
+  
   # Private methods
 
   def _create_formatter(self) -> logging.Formatter:
@@ -68,17 +67,17 @@ class Logger:
     """
     return logging.Formatter(fmt=self.log_format, datefmt=self.date_format, style="{")
 
-  def _create_console_handler(self) -> logging.StreamHandler:
+  def _create_stream_handler(self) -> logging.StreamHandler:
     """
     Crée un gestionnaire pour afficher les logs dans la console.
 
     :return: Instance de logging.StreamHandler configurée.
     :rtype: logging.StreamHandler
     """
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(self.console_level)
-    console_handler.setFormatter(self._formatter)
-    return console_handler
+    self.stream_handler = logging.StreamHandler()
+    self.stream_handler.setLevel(self.console_level)
+    self.stream_handler.setFormatter(self.formatter)
+    return self.stream_handler
 
   def _create_file_handler(self) -> Optional[logging.FileHandler]:
     """
@@ -89,10 +88,9 @@ class Logger:
     """
     if not self.log_file:
       return None
-    file_handler = logging.FileHandler(self.log_file, encoding="utf-8", mode="a")
-    file_handler.setLevel(self.file_level)
-    file_handler.setFormatter(self._formatter)
-    return file_handler
+    self.file_handler = logging.FileHandler(self.log_file, encoding="utf-8", mode="w")
+    self.file_handler.setLevel(self.file_level)
+    self.file_handler.setFormatter(self.formatter)
+    return self.file_handler
 
 logger = Logger(log_file=setting.get_log_file())
-

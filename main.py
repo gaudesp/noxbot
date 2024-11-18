@@ -1,6 +1,13 @@
 from utils.dotenv import setting
 from utils.discord import bot
-from utils.logging import logging
+from utils.logging import logger
+
+log = logger.get_logger('main')
 
 if __name__ == "__main__":
-  bot.run(setting.get_discord_token())
+  log.info('Starting BOT...')
+  bot.run(
+    setting.get_discord_token(),
+    log_handler=None
+  )
+  log.info('BOT has been closed!')

@@ -35,7 +35,7 @@ class DiscordBot(commands.Bot):
 
     :return: None
     """
-    log.info(f"Bot connecté : {self.user} | Guilds : {len(self.guilds)}")
+    log.info(f"{self.user} is online | Servers : {len(self.guilds)}")
 
   async def setup_hook(self) -> None:
     """
@@ -44,7 +44,7 @@ class DiscordBot(commands.Bot):
     :return: None
     """
     await self.database.setup()
-    log.info("Configuration initiale du bot terminée.")
+    log.info("Initial BOT setup completed.")
 
   async def close(self) -> None:
     """
@@ -52,8 +52,9 @@ class DiscordBot(commands.Bot):
 
     :return: None
     """
-    log.info("Bot en cours de fermeture...")
+    log.info("Closing BOT...")
     await self.database.close()
     await super().close()
 
 bot = DiscordBot()
+logger.get_logger("discord")

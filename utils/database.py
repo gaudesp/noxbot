@@ -1,11 +1,12 @@
 from typing import Any, Union
-from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, AsyncEngine  # Importer AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, create_async_engine
 from sqlalchemy.engine import Result
 from .dotenv import setting
+from .logging import logger
 
 Base = declarative_base()
+
 class Database:
   """Classe utilitaire pour gérer les interactions avec une base de données asynchrone."""
 
@@ -89,14 +90,14 @@ class Database:
 
   # Private methods
 
-  def _create_engine(self) -> AsyncEngine:  # Corriger le type ici pour retourner un AsyncEngine
+  def _create_engine(self) -> AsyncEngine:
     """
     Crée le moteur de base de données asynchrone.
 
     :return: Instance de SQLAlchemy async engine.
     :rtype: AsyncEngine
     """
-    return create_async_engine(self.db_path, echo=True)
+    return create_async_engine(self.db_path, echo=False)
 
   def _create_session(self) -> sessionmaker:
     """
@@ -108,3 +109,4 @@ class Database:
     return sessionmaker(bind=self.engine, class_=AsyncSession, expire_on_commit=False)
 
 database = Database(db_path=setting.get_db_path())
+logger.get_logger("sqlalchemy")
