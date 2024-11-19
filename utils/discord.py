@@ -36,7 +36,7 @@ class DiscordBot(commands.Bot):
 
     :return: None
     """
-    log.info(f"{self.user} is online | Servers : {len(self.guilds)}")
+    log.info(f"{self.user} is online | Server(s) : {len(self.guilds)}")
 
   async def setup_hook(self) -> None:
     """
@@ -92,7 +92,7 @@ class DiscordBot(commands.Bot):
     :return: None
     """
     synced = await self.tree.sync()
-    log.info(f"{len(synced)} commands synced : {', '.join(command.name for command in synced)}")
+    log.info(f"{len(synced)} command(s) synced : {', '.join(command.name for command in synced)}")
 
 bot = DiscordBot()
 logger.get_logger("discord")
