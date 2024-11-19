@@ -1,7 +1,7 @@
 import discord
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
-from models import Game, FollowedGame, Server
+from src.models import FollowedGame, Server
 from discord.ext import commands
 from discord import app_commands
 from utils.discord import DiscordBot

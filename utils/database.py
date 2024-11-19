@@ -2,7 +2,7 @@ from typing import Any, Union
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, create_async_engine
 from sqlalchemy.engine import Result
-from .dotenv import setting
+from config.setting import setting
 
 Base = declarative_base()
 

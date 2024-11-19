@@ -1,6 +1,6 @@
 import aiohttp
-from .matching import Matcher
 from typing import Optional
+from utils.matching import Matcher
 
 class Steam:
   """Classe utilitaire pour interagir avec l'API Steam et récupérer des informations sur les jeux."""

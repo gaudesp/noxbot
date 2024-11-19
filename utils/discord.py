@@ -2,9 +2,9 @@ import os
 import discord
 from datetime import datetime
 from discord.ext import commands
-from .database import Database, database
-from .logging import logger
-from .dotenv import setting
+from config.setting import setting
+from utils.database import Database, database
+from utils.logging import logger
 
 log = logger.get_logger(__name__)
 
@@ -76,7 +76,7 @@ class DiscordBot(commands.Bot):
         for root, _, files in os.walk(cog_path):
           for filename in files:
             if filename.endswith('.py') and filename != '__init__.py':
-              extension = f"cogs.{os.path.relpath(root, './src/cogs').replace(os.sep, '.')}.{filename[:-3]}"
+              extension = f"src.cogs.{os.path.relpath(root, './src/cogs').replace(os.sep, '.')}.{filename[:-3]}"
               try:
                 await self.load_extension(extension)
                 cog_files_loaded.append(extension)

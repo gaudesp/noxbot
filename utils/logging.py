@@ -1,7 +1,6 @@
 import logging
 from typing import Optional
-
-from .dotenv import setting
+from config.setting import setting
 
 COLORS = {
   'DEBUG': '\033[94m',   # Bleu
