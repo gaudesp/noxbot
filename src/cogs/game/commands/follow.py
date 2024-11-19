@@ -1,13 +1,10 @@
 import discord
 from sqlalchemy.future import select
 from models import Game, FollowedGame, Server
-from utils.logging import logger
 from discord.ext import commands
 from discord import app_commands
 from utils.discord import DiscordBot
 from utils.steamer import steam
-
-log = logger.get_logger(__name__)
 
 class FollowCommands(commands.Cog):
   def __init__(self, bot: DiscordBot) -> None:
