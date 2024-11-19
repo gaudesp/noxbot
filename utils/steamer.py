@@ -116,3 +116,5 @@ class Steam:
     if data and str(app_id) in data and data[str(app_id)]['success']:
       return data[str(app_id)]['data']
     return None
+
+steam = Steam()

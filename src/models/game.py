@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship, backref, declarative_base
-
-Base = declarative_base()
+from sqlalchemy.orm import relationship, backref
+from utils.database import Base
 
 class Game(Base):
   __tablename__ = 'games'
@@ -10,3 +9,6 @@ class Game(Base):
   steam_id = Column(String, unique=True, nullable=False)
   news = relationship("News", backref=backref("game"), uselist=False)
   followed_by_servers = relationship("FollowedGame", backref="game")
+
+  def __repr__(self):
+      return f"<Game(id={self.id}, name={self.name}, steam_id={self.steam_id})>"

@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, create_async_engine
 from sqlalchemy.engine import Result
 from .dotenv import setting
-from .logging import logger
 
 Base = declarative_base()
 
@@ -109,4 +108,3 @@ class Database:
     return sessionmaker(bind=self.engine, class_=AsyncSession, expire_on_commit=False)
 
 database = Database(db_path=setting.db_path)
-logger.get_logger("sqlalchemy")

@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
-from sqlalchemy.orm import relationship, declarative_base
-
-Base = declarative_base()
+from sqlalchemy.orm import relationship
+from utils.database import Base
 
 class Server(Base):
   __tablename__ = 'servers'
@@ -13,3 +12,6 @@ class Server(Base):
   premium_expires_at = Column(DateTime, nullable=True)
   subscriptions = relationship("Subscription", backref="server")
   followed_games = relationship("FollowedGame", backref="server")
+
+  def __repr__(self):
+    return f"<Server(id={self.id}, name={self.name}, discord_id={self.discord_id})>"

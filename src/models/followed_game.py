@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship, declarative_base
-
-Base = declarative_base()
+from sqlalchemy.orm import relationship
+from utils.database import Base
 
 class FollowedGame(Base):
   __tablename__ = 'followed_games'
@@ -15,4 +14,7 @@ class FollowedGame(Base):
   @property
   def channel(self) -> str:
     """Retourne la mention du canal sous forme de chaîne."""
-    return f"<#{self.channel_id}>"
+    return f"<#{self.discord_channel_id}>"
+
+  def __repr__(self):
+    return f"<FollowedGame(id={self.id}, discord_channel_id={self.discord_channel_id}, server_id={self.server_id}, game_id={self.game_id})>"
