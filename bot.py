@@ -1,6 +1,7 @@
 from config.setting import setting
 from utils.discord import bot
 from utils.logging import logger
+from src.models import Game, FollowedGame, News, Server, Subscription, User
 
 log = logger.get_logger('bot')
 

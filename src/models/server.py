@@ -10,8 +10,9 @@ class Server(Base):
   disabled = Column(Boolean, default=False)
   premium_status = Column(Boolean, default=False)
   premium_expires_at = Column(DateTime, nullable=True)
-  subscriptions = relationship("Subscription", backref="server")
-  followed_games = relationship("FollowedGame", backref="server")
+
+  subscriptions = relationship("Subscription", back_populates="server")
+  followed_games = relationship("FollowedGame", back_populates="server")
 
   def __repr__(self):
     return f"<Server(id={self.id}, name={self.name}, discord_id={self.discord_id})>"

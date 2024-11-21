@@ -1,5 +1,6 @@
 import discord
 from sqlalchemy.future import select
+from services.news import NewsService
 from src.models import Game, FollowedGame, Server
 from discord.ext import commands
 from discord import app_commands
@@ -9,6 +10,7 @@ from utils.steamer import steam
 class FollowCommands(commands.Cog):
   def __init__(self, bot: DiscordBot) -> None:
     self.bot = bot
+    self.new_service = NewsService()
 
   @app_commands.command(name='nx_follow', description='placeholder')
   @app_commands.checks.has_permissions(administrator=True)
@@ -37,6 +39,9 @@ class FollowCommands(commands.Cog):
       return
   
     followed_game: FollowedGame = await self.bot.database.insert(FollowedGame(discord_channel_id=channel.id, game_id=game.id, server_id=server.id))
+    news_dict = self.news_service.get_news_by_steam_id(game.steam_id)
+    if not news_dict:
+
     await interaction.followup.send(f"{game.name} sera désormais suivi dans le channel {followed_game.channel}")
 
 async def setup(bot: DiscordBot) -> None:
