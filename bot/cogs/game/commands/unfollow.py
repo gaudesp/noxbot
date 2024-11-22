@@ -1,6 +1,6 @@
 import discord
 from sqlalchemy.future import select
-from src.models import Game, FollowedGame, Server
+from models import Game, FollowedGame, Server
 from discord.ext import commands
 from discord import app_commands
 from utils.discord import DiscordBot

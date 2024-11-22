@@ -69,14 +69,14 @@ class DiscordBot(commands.Bot):
 
     :return: None
     """
-    for cog_folder in os.listdir('./src/cogs'):
-      cog_path = os.path.join('./src/cogs', cog_folder)
+    for cog_folder in os.listdir('./bot/cogs'):
+      cog_path = os.path.join('./bot/cogs', cog_folder)
       if os.path.isdir(cog_path):
         cog_files_loaded = []
         for root, _, files in os.walk(cog_path):
           for filename in files:
             if filename.endswith('.py') and filename != '__init__.py':
-              extension = f"src.cogs.{os.path.relpath(root, './src/cogs').replace(os.sep, '.')}.{filename[:-3]}"
+              extension = f"bot.cogs.{os.path.relpath(root, './bot/cogs').replace(os.sep, '.')}.{filename[:-3]}"
               try:
                 await self.load_extension(extension)
                 cog_files_loaded.append(extension)
