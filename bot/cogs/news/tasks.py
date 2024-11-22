@@ -17,7 +17,7 @@ class NewsTask(commands.Cog):
     self.news_service = NewsService(bot.database)
     self.check_for_news.start()
 
-  @tasks.loop(seconds=10)
+  @tasks.loop(seconds=1800)
   async def check_for_news(self) -> None:
     """
     Vérifie périodiquement s'il y a de nouvelles actualités pour les jeux suivis par les serveurs Discord.

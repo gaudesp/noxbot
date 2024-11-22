@@ -94,5 +94,72 @@ class DiscordBot(commands.Bot):
     synced = await self.tree.sync()
     log.info(f"{len(synced)} command(s) synced : {', '.join(command.name for command in synced)}")
 
+class NewsEmbed:
+  """
+  Gère la création d'un embed Discord pour une actualité.
+
+  :param news: Instance de l'objet News contenant les données nécessaires.
+  :param color: Couleur de l'embed (par défaut bleu).
+  """
+  def __init__(self, news, game, color=discord.Color.blue()) -> None:
+    self.news = news
+    self.game = game
+    self.color = color
+
+  def create(self) -> discord.Embed:
+    """
+    Crée et renvoie un embed Discord configuré pour l'actualité.
+
+    :return: Embed Discord configuré.
+    :rtype: discord.Embed
+    """
+    embed = discord.Embed(
+      title=self.news.title,
+      url=self.news.url,
+      description=self.news.description,
+      color=self.color
+    )
+    self._add_author(embed)
+    self._add_image(embed)
+    self._add_footer(embed)
+    return embed
+
+  def _add_author(self, embed: discord.Embed) -> None:
+    """
+    Ajoute l'auteur à l'embed basé sur le nom du jeu.
+
+    :param embed: L'embed à modifier.
+    :rtype: None
+    """
+    if self.game.name:
+      embed.set_author(name=self.game.name)
+
+  def _add_image(self, embed: discord.Embed) -> None:
+    """
+    Ajoute une image principale à l'embed si disponible.
+
+    :param embed: L'embed à modifier.
+    :rtype: None
+    """
+    if self.news.image_url:
+      image_url = self.news.image_url
+    elif self.game.image_url:
+      image_url = self.game.image_url
+    else:
+      return
+
+    embed.set_image(url=image_url)
+
+  def _add_footer(self, embed: discord.Embed) -> None:
+    """
+    Ajoute un pied de page avec la date formatée.
+
+    :param embed: L'embed à modifier.
+    :rtype: None
+    """
+    if self.news.published_date:
+      formatted_date = self.news.published_date.strftime("%Y-%m-%d %H:%M:%S")
+      embed.set_footer(text=f"Published on: {formatted_date}")
+
 bot = DiscordBot()
 logger.get_logger("discord")

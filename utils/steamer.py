@@ -45,7 +45,7 @@ class Steam:
     if app_data:
       return {
         'name': app_data.get('name'),
-        'header_image': app_data.get('header_image')
+        'image_url': app_data.get('header_image')
       }
     return None
 
