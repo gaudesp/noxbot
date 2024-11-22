@@ -6,6 +6,12 @@ from config.setting import setting
 
 Base = declarative_base()
 
+class BaseModel(Base):
+  __abstract__ = True
+  
+  def to_dict(self):
+    return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+
 class Database:
   """Classe utilitaire pour gérer les interactions avec une base de données asynchrone."""
 
@@ -108,3 +114,4 @@ class Database:
     return sessionmaker(bind=self.engine, class_=AsyncSession, expire_on_commit=False)
 
 database = Database(db_path=setting.db_path)
+# logger.get_logger("sqlalchemy")

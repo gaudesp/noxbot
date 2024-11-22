@@ -1,6 +1,8 @@
 import discord
 from sqlalchemy.future import select
-from src.models import Game, FollowedGame, Server
+from sqlalchemy import update
+from src.services.news import NewsService
+from src.models import Game, FollowedGame, Server, News
 from discord.ext import commands
 from discord import app_commands
 from utils.discord import DiscordBot
@@ -9,6 +11,7 @@ from utils.steamer import steam
 class FollowCommands(commands.Cog):
   def __init__(self, bot: DiscordBot) -> None:
     self.bot = bot
+    self.new_service = NewsService(bot.database)
 
   @app_commands.command(name='nx_follow', description='placeholder')
   @app_commands.checks.has_permissions(administrator=True)
@@ -35,9 +38,20 @@ class FollowCommands(commands.Cog):
     if followed_game:
       await interaction.followup.send(f"{game.name} est déjà suivi dans le channel {followed_game.channel}")
       return
+    
+    steam_news = await self.new_service.get_news_by_steam_id(game.steam_id)
+    if not steam_news:
+      await interaction.followup.send(f"Aucune actualité n'est disponible pour le jeu {game.name}")
+      return
   
     followed_game: FollowedGame = await self.bot.database.insert(FollowedGame(discord_channel_id=channel.id, game_id=game.id, server_id=server.id))
-    await interaction.followup.send(f"{game.name} sera désormais suivi dans le channel {followed_game.channel}")
+
+    find_news = await self.bot.database.execute(select(News).where(News.game_id == game.id))
+    news = find_news.scalar_one_or_none()
+    if not news:
+      news = await self.bot.database.insert(News(**steam_news, game_id=game.id))
+
+    await interaction.followup.send(f"Les prochaines actualités de {game.name} seront désormais publiées dans le channel {followed_game.channel}")
 
 async def setup(bot: DiscordBot) -> None:
   await bot.add_cog(FollowCommands(bot))
