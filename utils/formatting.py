@@ -12,10 +12,8 @@ class SteamFormatter:
     r'\[list\]|\[/*list\]': '',                             # Supprime les balises de liste
     r'\s*\[\*\](?=\S)': '\n- ',                             # Formate les éléments principaux en puces
     r'\s*\[\*\]\s*': '\n- ',                                # Remplace les sous-listes par des puces sans indentation
-    r'・': '- ',                                            # Remplace les puces "・" par des tirets
-    r'\n==\n+': '',                                         # Supprime "=="
     r'^\d+\.\s+': '',                                       # Supprime les numéros en début de ligne
-    r'\n{3,}': '\n\n',                                      # Limite les retours à la ligne à 2 maximum
+    r'[\n\s]{3,}': '\n\n',                                  # Remplace les lignes vides multiples par une seule ligne vide
   }
 
   @staticmethod
@@ -24,9 +22,10 @@ class SteamFormatter:
     format_links = SteamFormatter._format_links(content)
     apply_replacements = SteamFormatter._apply_replacements(format_links)
     limit_length = SteamFormatter._limit_length(apply_replacements, max_length)
-    cleaned_content = SteamFormatter._limit_lines(limit_length)
-    if len(apply_replacements) > len(limit_length):
-      cleaned_content = cleaned_content + "..."
+    limit_lines = SteamFormatter._limit_lines(limit_length)
+    cleaned_content = limit_lines
+    if len(apply_replacements) > len(cleaned_content):
+      cleaned_content = cleaned_content + "\n..."
     return cleaned_content
   
   @staticmethod
@@ -50,11 +49,12 @@ class SteamFormatter:
   def _limit_length(text: str, max_length: int) -> str:
     """Tronque le texte à une longueur maximale."""
     if len(text) > max_length:
-      return text[:max_length]
+      truncated = text[:max_length].rstrip(' \n')
+      return truncated + "..."
     return text
 
   @staticmethod
-  def _limit_lines(text: str, max_lines: int = 10) -> str:
+  def _limit_lines(text: str, max_lines: int = 11) -> str:
     """Limite le texte à un nombre maximum de lignes."""
     lines = text.splitlines()
     return "\n".join(lines[:max_lines])
