@@ -22,6 +22,10 @@ class FollowCommands(commands.Cog):
   async def follow(self, interaction: discord.Interaction, steam_id: str, channel: discord.TextChannel) -> None:
     await interaction.response.defer(ephemeral=True, thinking=True)
 
+    if not self.game:
+      await interaction.followup.send(f"Le jeu n'existe pas.")
+      return
+
     find_followed_game = await self.bot.database.execute(select(FollowedGame).where(FollowedGame.game_id == self.game.id, FollowedGame.server_id == self.server.id))
     followed_game = find_followed_game.scalar_one_or_none()
     if followed_game:
