@@ -1,7 +1,7 @@
 import discord
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
-from bot.decorators import ensure_server, ensure_game
+from bot.decorators import ensure_server
 from bot.services.news import NewsService
 from models import FollowedGame, News, Game
 from discord.ext import commands

@@ -1,7 +1,7 @@
 from functools import wraps
 import discord
 from sqlalchemy.future import select
-from models import Game
+from models import Game, News
 from utils.steamer import steam
 
 def ensure_game(func):
@@ -17,6 +17,13 @@ def ensure_game(func):
     if not game:
       game: Game = await self.bot.database.insert(Game(name=steam_game.get('name'), image_url=steam_game.get('image_url'), steam_id=steam_id))
 
+    find_news = await self.bot.database.execute(select(News).where(News.game_id == game.id))
+    news = find_news.scalar_one_or_none()
+    if not news:
+      steam_news = await self.news_service.get_news_by_steam_id(steam_id)
+      if steam_news:
+        await self.bot.database.insert(News(**steam_news, game_id=game.id))
+    
     self.game = game
     return await func(self, interaction, steam_id, *args, **kwargs)
   

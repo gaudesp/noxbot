@@ -2,7 +2,8 @@ from typing import Any, Optional
 import discord
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
-from bot.decorators import ensure_server, ensure_game
+from bot.decorators import ensure_server
+from bot.helpers.game import GameHelper
 from models import FollowedGame, Server
 from discord.ext import commands
 from discord import app_commands
@@ -24,11 +25,9 @@ class TrackedCommands(commands.Cog):
     if not followed_games:
       await interaction.followup.send(f"Aucun jeu n'est suivi.")
       return
-
-    game_names = [f"\n- **{followed_game.game.name}** (`{followed_game.game.steam_id}`) ➜ {followed_game.channel}" for followed_game in followed_games]
-    games_list = "".join(game_names)
-
-    await interaction.followup.send(f"{len(game_names)} jeu(x) suivi(s) : {games_list}")
+    
+    followed_games_list = GameHelper.format_followed_games(followed_games)
+    await interaction.followup.send(f"{len(followed_games)} jeu(x) suivi(s) : {followed_games_list}")
 
 async def setup(bot: DiscordBot) -> None:
   await bot.add_cog(TrackedCommands(bot))
