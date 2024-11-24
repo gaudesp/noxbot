@@ -158,8 +158,8 @@ class NewsEmbed:
     :rtype: None
     """
     if self.news.get('published_date'):
-      formatted_date = self.news.get('published_date').strftime("%Y-%m-%d %H:%M:%S")
-      embed.set_footer(text=f"Published on: {formatted_date}")
+      formatted_date = self.news.get('published_date').strftime("%m/%d/%Y at %I:%M %p")
+      embed.set_footer(text=f"Posted on {formatted_date}")
 
 bot = DiscordBot()
 logger.get_logger("discord")
