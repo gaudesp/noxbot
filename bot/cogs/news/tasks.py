@@ -45,20 +45,26 @@ class NewsTask(commands.Cog):
 
       for game_steam_id, servers_following_game in games_by_steam_id.items():
         try:
-          steam_news = await self.news_service.get_news_by_steam_id(game_steam_id)
-          if not steam_news:
+          steam_news_id = await self.news_service.get_news_by_steam_id(game_steam_id, 'id')
+          if not steam_news_id:
             continue
-
+            
           game = servers_following_game[0].game
           latest_news = game.news
 
-          if latest_news and steam_news.get('steam_id') == latest_news.steam_id:
+          if latest_news and steam_news_id.get('steam_id') == latest_news.steam_id:
             continue
 
+          steam_news = await self.news_service.get_news_by_steam_id(game_steam_id)
           steam_news['game_id'] = game.id
-          await self.bot.database.execute(
-            update(News).where(News.id == latest_news.id).values(**steam_news)
-          )
+
+          if latest_news:
+            await self.bot.database.execute(
+              update(News).where(News.id == latest_news.id).values(**steam_news)
+            )
+          else:
+            await self.bot.database.insert(News(**steam_news, game_id=game.id))
+
           new_articles.append(steam_news)
 
           for followed_game in servers_following_game:
@@ -67,7 +73,7 @@ class NewsTask(commands.Cog):
             await channel.send(embed=news_embed.create())
         except Exception as e:
           log.error(f"Error processing game {game_steam_id}: {e}")
-          continue 
+          continue
 
       log.info(f"{len(new_articles)} new article(s) found.")
     except Exception as e:
