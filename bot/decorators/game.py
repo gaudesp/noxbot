@@ -7,6 +7,19 @@ from utils.steamer import steam
 def ensure_game(func):
   @wraps(func)
   async def wrapper(self, interaction: discord.Interaction, steam_id, *args, **kwargs):
+    find_game = await self.bot.database.execute(select(Game).where(Game.steam_id == steam_id))
+    game = find_game.scalar_one_or_none()
+    if not game:
+      self.game = None
+
+    self.game = game
+    return await func(self, interaction, steam_id, *args, **kwargs)
+  
+  return wrapper
+
+def ensure_steam_game(func):
+  @wraps(func)
+  async def wrapper(self, interaction: discord.Interaction, steam_id, *args, **kwargs):
     steam_game = await steam.get_game_info(steam_id)
     if not steam_game:
       self.game = None

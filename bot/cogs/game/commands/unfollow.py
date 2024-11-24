@@ -12,7 +12,6 @@ class UnfollowCommands(commands.Cog):
     self.bot = bot
     self.server = None
     self.game = None
-    self.news_service = NewsService(bot.database)
 
   @app_commands.command(name='nx_unfollow', description='placeholder')
   @app_commands.checks.has_permissions(administrator=True)

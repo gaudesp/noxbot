@@ -1,12 +1,11 @@
 import discord
 from sqlalchemy.future import select
-from bot.decorators import ensure_server, ensure_game
+from bot.decorators import ensure_server, ensure_steam_game
 from bot.services.news import NewsService
-from models import FollowedGame, News
+from models import FollowedGame
 from discord.ext import commands
 from discord import app_commands
 from utils.discord import DiscordBot
-from utils.steamer import steam
 
 class FollowCommands(commands.Cog):
   def __init__(self, bot: DiscordBot) -> None:
@@ -18,7 +17,7 @@ class FollowCommands(commands.Cog):
   @app_commands.command(name='nx_follow', description='placeholder')
   @app_commands.checks.has_permissions(administrator=True)
   @ensure_server
-  @ensure_game
+  @ensure_steam_game
   async def follow(self, interaction: discord.Interaction, steam_id: str, channel: discord.TextChannel) -> None:
     await interaction.response.defer(ephemeral=True, thinking=True)
 

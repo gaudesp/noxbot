@@ -1,10 +1,9 @@
-from typing import Any, Optional
 import discord
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 from bot.decorators import ensure_server
 from bot.helpers.game import GameHelper
-from models import FollowedGame, Server
+from models import FollowedGame
 from discord.ext import commands
 from discord import app_commands
 from utils.discord import DiscordBot

@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 from utils.logging import logger
 from bot.services.news import NewsService
 from models import Game, FollowedGame, News
-from utils.discord import DiscordBot
+from utils.discord import DiscordBot, NewsEmbed
 
 log = logger.get_logger(__name__)
 
@@ -61,8 +61,10 @@ class NewsTask(commands.Cog):
           )
           new_articles.append(steam_news)
 
-          for following_game in servers_following_game:
-            log.info(f"Server n°{following_game.server.discord_id} : {game.name} -> {following_game.channel}")
+          for followed_game in servers_following_game:
+            news_embed = NewsEmbed(news=steam_news, game=followed_game.game.to_dict())
+            channel = self.bot.get_channel(int(followed_game.discord_channel_id))
+            await channel.send(embed=news_embed.create())
         except Exception as e:
           log.error(f"Error processing game {game_steam_id}: {e}")
           continue 

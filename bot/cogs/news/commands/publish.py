@@ -2,7 +2,6 @@ import discord
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 from bot.decorators import ensure_server, ensure_game
-from bot.services.news import NewsService
 from models import FollowedGame, Game
 from discord.ext import commands
 from discord import app_commands
@@ -13,7 +12,6 @@ class PublishCommands(commands.Cog):
     self.bot = bot
     self.server = None
     self.game = None
-    self.news_service = NewsService(bot.database)
 
   @app_commands.command(name='nx_publish', description='placeholder')
   @app_commands.checks.has_permissions(administrator=True)
@@ -36,7 +34,7 @@ class PublishCommands(commands.Cog):
       await interaction.followup.send(f"Aucune actualité n'est disponible pour le jeu {followed_game.game.name}.")
       return
     
-    news_embed = NewsEmbed(news=followed_game.game.news, game=followed_game.game)
+    news_embed = NewsEmbed(news=followed_game.game.news.to_dict(), game=followed_game.game.to_dict())
     channel = self.bot.get_channel(int(followed_game.discord_channel_id))
     await channel.send(embed=news_embed.create())
     await interaction.followup.send(f"La dernière actualité du jeu {followed_game.game.name} a été publié dans le channel {followed_game.channel}.")

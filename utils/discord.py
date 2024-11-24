@@ -101,7 +101,7 @@ class NewsEmbed:
   :param news: Instance de l'objet News contenant les données nécessaires.
   :param color: Couleur de l'embed (par défaut bleu).
   """
-  def __init__(self, news, game, color=discord.Color.blue()) -> None:
+  def __init__(self, news: dict, game: dict, color=discord.Color.blue()) -> None:
     self.news = news
     self.game = game
     self.color = color
@@ -114,9 +114,9 @@ class NewsEmbed:
     :rtype: discord.Embed
     """
     embed = discord.Embed(
-      title=self.news.title,
-      url=self.news.url,
-      description=self.news.description,
+      title=self.news.get('title'),
+      url=self.news.get('url'),
+      description=self.news.get('description'),
       color=self.color
     )
     self._add_author(embed)
@@ -131,8 +131,8 @@ class NewsEmbed:
     :param embed: L'embed à modifier.
     :rtype: None
     """
-    if self.game.name:
-      embed.set_author(name=self.game.name)
+    if self.game.get('name'):
+      embed.set_author(name=self.game.get('name'))
 
   def _add_image(self, embed: discord.Embed) -> None:
     """
@@ -141,10 +141,10 @@ class NewsEmbed:
     :param embed: L'embed à modifier.
     :rtype: None
     """
-    if self.news.image_url:
-      image_url = self.news.image_url
-    elif self.game.image_url:
-      image_url = self.game.image_url
+    if self.news.get('image_url'):
+      image_url = self.news.get('image_url')
+    elif self.game.get('image_url'):
+      image_url = self.game.get('image_url')
     else:
       return
 
@@ -157,8 +157,8 @@ class NewsEmbed:
     :param embed: L'embed à modifier.
     :rtype: None
     """
-    if self.news.published_date:
-      formatted_date = self.news.published_date.strftime("%Y-%m-%d %H:%M:%S")
+    if self.news.get('published_date'):
+      formatted_date = self.news.get('published_date').strftime("%Y-%m-%d %H:%M:%S")
       embed.set_footer(text=f"Published on: {formatted_date}")
 
 bot = DiscordBot()
