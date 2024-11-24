@@ -6,8 +6,11 @@ class SteamFormatter:
   """Classe utilitaire pour le formatage de texte, nettoyage de contenu et gestion des émojis."""
 
   REPLACEMENTS = {
+    r'\[b\](.*?)(?=\[/?b\]|$)': r'\1',  # Supprime les balises [b]
+    r'\[u\](.*?)(?=\[/?u\]|$)': r'\1',  # Supprime les balises [u]
+    r'\[i\](.*?)(?=\[/?i\]|$)': r'\1',  # Supprime les balises [i]
+    r'\[strike\](.*?)(?=\[/?strike\]|$)': r'\1',  # Supprime les balises [strike]
     r'\[img\].*?\[/img\]': '',  # Supprime les images standard
-    r'img.*?{STEAM_CLAN_IMAGE}.*?jpg': '',  # Supprime les images Steam spécifiques
     r'\[url=.*?\].*?\[/url\]': '',  # Supprime les balises [url=][/url] et leur contenu
     r'\[previewyoutube=.*?\]\s*?\[/previewyoutube\]': '',  # Supprime les vidéos
     r'\[list\]|\[/*list\]': '',  # Supprime les balises de liste
@@ -21,7 +24,8 @@ class SteamFormatter:
     r'^\s*\[\s*(.*?)\s*\]\s*(?=\n- )': r'\1',  # Crée les titres de liste à partir des autres balises []
     r'\[.*?\]': '',  # Supprime les autres balises
     r'^(?!- )(.*?)(?=\n- )': lambda match: '**' + match.group(1).capitalize() + '**',  # Capitalize et met en gras les titres de liste
-    r'[\n\s]{2,}': '\n',  # Remplace les lignes vides multiples par une seule
+    r'imgSTEAMCLANIMAGE.*?jpgimg:': '',  # Supprime les images Steam spécifiques
+    r'[\n\s]{1,}': '\n\n',  # Remplace les lignes vides multiples par une seule
   }
 
   @staticmethod
@@ -46,11 +50,8 @@ class SteamFormatter:
   @staticmethod
   def extract_image(content: str) -> str:
     """Récupère la première image qui n'est pas dans une balise [url]."""
-    # Supprime les balises [url] et leur contenu
     content_without_url = re.sub(r'\[url=.*?\].*?\[/url\]', '', content, flags=re.DOTALL)
-    # Trouve toutes les balises [img] restantes
     custom_image_urls = re.findall(r'\[img\](.+?)\[/img\]', content_without_url)
-    # Remplace {STEAM_CLAN_IMAGE} et retourne la première image
     image_urls = [url.replace('{STEAM_CLAN_IMAGE}', 'https://clan.akamai.steamstatic.com/images') for url in custom_image_urls]
     return image_urls[0] if image_urls else None
 
