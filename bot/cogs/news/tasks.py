@@ -63,7 +63,7 @@ class NewsTask(commands.Cog):
               update(News).where(News.id == latest_news.id).values(**steam_news)
             )
           else:
-            await self.bot.database.insert(News(**steam_news, game_id=game.id))
+            await self.bot.database.insert(News(**steam_news))
 
           new_articles.append(steam_news)
 
