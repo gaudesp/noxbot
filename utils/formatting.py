@@ -6,37 +6,40 @@ class SteamFormatter:
   """Classe utilitaire pour le formatage de texte, nettoyage de contenu et gestion des émojis."""
 
   REPLACEMENTS = {
-    r'\[b\](.*?)(?=\[/?b\]|$)': r'\1',  # Supprime les balises [b]
-    r'\[u\](.*?)(?=\[/?u\]|$)': r'\1',  # Supprime les balises [u]
-    r'\[i\](.*?)(?=\[/?i\]|$)': r'\1',  # Supprime les balises [i]
-    r'\[strike\](.*?)(?=\[/?strike\]|$)': r'\1',  # Supprime les balises [strike]
-    r'\[img\].*?\[/img\]': '',  # Supprime les images
-    r'\[url=.*?\].*?\[/url\]': '',  # Supprime les liens [url]
-    r'\[previewyoutube=.*?\]\s*?\[/previewyoutube\]': '',  # Supprime les vidéos
-    r'\[list\]|\[/*list\]': '',  # Supprime les balises de liste
-    r'\s*\[\*\](?=\S)': '\n- ',  # Convertit les éléments principaux en puces
-    r'\s*\[\*\]\s*': '\n- ',  # Corrige les sous-listes en puces
-    r'((?:\[h[1-6]\].*?\[/h[1-6]\]\s*)+)(.*)': lambda m: ' · '.join(re.sub(r'\[h[1-6]\](.*?)\[/h[1-6]\]', r'\1', m.group(1)).strip().split('\n')) + '\n' + m.group(2),
-    r'^\d+\.\s+': '',  # Supprime les numéros en début de ligne
-    r'[▼==]': '',  # Supprime les caractères ▼ et ==
-    r'・([^ ]+)': r'- \1',  # Remplace "・" par "-"
-    r'^.*⤷.*\n': '',  # Supprime les lignes contenant ⤷
-    r'\[h[1-6]\]|\[\/h[1-6]\]': '',  # Supprime les balises de titre [h1] à [h6]
-    r'^\s*\[\s*(.*?)\s*\]\s*(?=\n- )': r'\1',  # Convertit les balises [] en titres si suivi d'une liste
-    r'\[.*?\]': '',  # Supprime les autres balises
-    r'^\s*#+\s*\n*(.*?)\n*#+\s*$': r'\n\1',
-    r'(?<=\S)\n{2,}(?=\s*-)': '\n',
+    r'\[b\](.*?)(?=\[/?b\]|$)': r'\1', # Supprime les balises [b]
+    r'\[u\](.*?)(?=\[/?u\]|$)': r'\1', # Supprime les balises [u]
+    r'\[i\](.*?)(?=\[/?i\]|$)': r'\1', # Supprime les balises [i]
+    r'\[strike\](.*?)(?=\[/?strike\]|$)': r'\1', # Supprime les balises [strike]
+    r'\[url=[^\]]+\]\[img.*?\].*?\[/img\]\[/url\]': '', # Supprime les balises [url] qui contiennent une image à l'intérieur
+    r'\[url=([^\]]+)\](?!.*\[img.*?\])(.*?)\[/url\]': lambda m: re.sub(f'[{re.escape(string.punctuation)}]', '', m.group(2)).replace(':', '') + ": " + m.group(1), # Supprime les balises [url] qui ne contiennent pas d'image et formate le texte
+    r'\[img\].*?\[/img\]': '', # Supprime les images
+    r'\[previewyoutube=.*?\]\s*?\[/previewyoutube\]': '', # Supprime les vidéos
+    r'\[list\]|\[/*list\]': '', # Supprime les balises de liste
+    r'・([^ ]+)': r'- \1', # Remplace "・" par "-"
+    r'\s*\[\*\](?=\S)': '\n- ', # Convertit les éléments principaux en puces
+    r'\s*\[\*\]\s*': '\n- ', # Corrige les sous-listes en puces
+    r'((?:\[h[1-6]\].*?\[/h[1-6]\]\s*)+)(.*)': lambda m: ' · '.join(re.sub(r'\[h[1-6]\](.*?)\[/h[1-6]\]', r'\1', m.group(1)).strip().split('\n')) + '\n' + m.group(2), # Formate les titres de type [h1] à [h6] en les joignant avec " · " et en conservant le texte du reste
+    r'^\d+\.\s+': '\n- ', # Supprime les numéros en début de ligne
+    r'[▼==]': '', # Supprime les caractères ▼ et ==
+    r'^.*⤷.*\n': '', # Supprime les lignes contenant ⤷
+    r'\[h[1-6]\]|\[\/h[1-6]\]': '', # Supprime les balises de titre [h1] à [h6]
+    r'^\s*\[\s*(.*?)\s*\]*(?=\n- )': r'\1', # Convertit les balises [] en titres si suivi d'une liste
+    r'\[.*?\]': '', # Supprime les autres balises [xxx] restantes
+    r'^\s*#+\s*\n*(.*?)\n*#+\s*$': r'\n\1', # Supprime les symboles de titre (comme ####) et garde uniquement le texte entre les symboles
+    r'(?<=\S)\n{2,}(?=\s*-)': '\n', # Supprime les sauts de ligne multiples avant un élément de liste
     r'^(?!- )(.*?)(?=\n- )': lambda match: f"**{match.group(1).title()}**" if match.group(1).strip() else match.group(1), # Formate les titres en gras
-    r'imgSTEAMCLANIMAGE.*?jpgimg:': '',  # Supprime les images Steam spécifiques
-    r'[\n\s]{2,}': '\n\n',  # Réduit les espaces multiples à un seul saut de ligne
+    r'^[\s]+\n': '\n', # Supprime les lignes vides en début de texte
+    r'[\n]{2,}': '\n\n', # Réduit les sauts de ligne multiples à un seul
+    ' {2,}': ' ', # Réduit les espaces multiples à un seul
+    r'(\S.*\S)\n\*\*': r'\1\n\n**', # Assure qu'un titre en gras soit suivi d'un saut de ligne avant un autre titre
+    r'[\[\]]': '', # Supprime tous les crochets restants
   }
 
   @staticmethod
-  def clean_content(content: str, max_length: int = 500) -> str:
+  def clean_content(content: str, max_length: int = 999999) -> str:
     """Nettoie et formate le contenu textuel brut avec un nombre de caractères maximum."""
     print(f"Input : \"{content}\"")
-    format_links = SteamFormatter._format_links(content)
-    apply_replacements = SteamFormatter._apply_replacements(format_links)
+    apply_replacements = SteamFormatter._apply_replacements(content)
     limit_length = SteamFormatter._limit_length(apply_replacements, max_length)
     limit_lines = SteamFormatter._limit_lines(limit_length)
     cleaned_content = SteamFormatter._filter_lastline(limit_lines)
@@ -70,7 +73,7 @@ class SteamFormatter:
     return text.strip()
 
   @staticmethod
-  def _limit_lines(text: str, max_lines: int = 15) -> str:
+  def _limit_lines(text: str, max_lines: int = 999) -> str:
     """Limite le texte à un nombre maximum de lignes."""
     lines = text.splitlines()
     return "\n".join(lines[:max_lines])
@@ -86,16 +89,6 @@ class SteamFormatter:
           truncated = truncated + ".."
         return truncated
       return text
-  
-  @staticmethod
-  def _format_links(content: str) -> str:
-    """Formate les liens en un texte simple."""
-    content = re.sub(
-      r'\[url=(.+?)\](.+?)\[/url\]', 
-      lambda m: re.sub(f'[{re.escape(string.punctuation)}]', '', m.group(2)).replace(':', '') + ": " + m.group(1), 
-      content
-    )
-    return content
   
   @staticmethod
   def _filter_lastline(content: str) -> str:
