@@ -26,7 +26,7 @@ class SteamFormatter:
     r'\[.*?\]': '',  # Supprime les autres balises
     r'^\s*#+\s*\n*(.*?)\n*#+\s*$': r'\n\1',
     r'(?<=\S)\n{2,}(?=\s*-)': '\n',
-    r'^(?!- )(.*?)(?=\n- )': lambda match: '**' + match.group(1).title() + '**',  # Formate les titres en gras
+    r'^(?!- )(.*?)(?=\n- )': lambda match: f"**{match.group(1).title()}**" if match.group(1).strip() else match.group(1), # Formate les titres en gras
     r'imgSTEAMCLANIMAGE.*?jpgimg:': '',  # Supprime les images Steam spécifiques
     r'[\n\s]{2,}': '\n\n',  # Réduit les espaces multiples à un seul saut de ligne
   }
