@@ -1,6 +1,13 @@
 from datetime import datetime
+from PIL import Image
+from io import BytesIO
 import re
 import string
+
+import requests
+from utils.logging import logger
+
+log = logger.get_logger(__name__)
 
 class SteamFormatter:
   """Classe utilitaire pour le formatage de texte, nettoyage de contenu et gestion des émojis."""
@@ -33,37 +40,45 @@ class SteamFormatter:
     ' {2,}': ' ', # Réduit les espaces multiples à un seul
     r'(\S.*\S)\n\*\*': r'\1\n\n**', # Assure qu'un titre en gras soit suivi d'un saut de ligne avant un autre titre
     r'[\[\]]': '', # Supprime tous les crochets restants
+    r'^(?!\*\*)([^\n]{2,30})(?=\n(?!\s*[\n-*]))': r'**\1**', # Met en gras les titres restants
   }
 
   @staticmethod
-  def clean_content(content: str, max_length: int = 999999) -> str:
+  def clean_content(content: str, max_length: int = 500) -> str:
     """Nettoie et formate le contenu textuel brut avec un nombre de caractères maximum."""
-    print(f"Input : \"{content}\"")
+    log.debug(f"Input : \"{content}\"")
     apply_replacements = SteamFormatter._apply_replacements(content)
     limit_length = SteamFormatter._limit_length(apply_replacements, max_length)
     limit_lines = SteamFormatter._limit_lines(limit_length)
     cleaned_content = SteamFormatter._filter_lastline(limit_lines)
     if len(apply_replacements) > len(cleaned_content):
       cleaned_content = cleaned_content + "\n..."
-    print(f"-------------------------------------------------")
-    print(f"Output : \"{cleaned_content}\"")
+    log.debug(f"Output : \"{cleaned_content}\"")
     return cleaned_content
   
   @staticmethod
   def clean_date(timestamp: datetime):
     """Convertit un timestamp en objet datetime."""
     return datetime.fromtimestamp(timestamp)
-
+  
   @staticmethod
-  def extract_image(content: str) -> str:
-      """Récupère la première image valide non GIF."""
-      content_without_url = re.sub(r'\[url=.*?\].*?\[/url\]', '', content, flags=re.DOTALL)
-      custom_image_urls = re.findall(r'\[img\](.+?)\[/img\]', content_without_url)
-      image_urls = [
-        url.replace('{STEAM_CLAN_IMAGE}', 'https://clan.akamai.steamstatic.com/images')
-        for url in custom_image_urls if not url.lower().endswith('.gif')
-      ]
-      return image_urls[0] if image_urls else None
+  def extract_image(content: str, min_width: int = 460, min_height: int = 215) -> str:
+    """Récupère la première image valide non GIF avec dimensions minimales."""
+    content_without_url = re.sub(r'\[url=.*?\].*?\[/url\]', '', content, flags=re.DOTALL)
+    custom_image_urls = re.findall(r'\[img\](.+?)\[/img\]', content_without_url)
+    for url in custom_image_urls:
+      if url.lower().endswith('.gif'):
+        continue
+      url = url.replace('{STEAM_CLAN_IMAGE}', 'https://clan.akamai.steamstatic.com/images')
+      try:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        img = Image.open(BytesIO(response.content))
+        if img.width >= min_width and img.height >= min_height:
+          return url
+      except Exception:
+        continue
+    return None
 
   @staticmethod
   def _apply_replacements(text: str) -> str:
@@ -73,7 +88,7 @@ class SteamFormatter:
     return text.strip()
 
   @staticmethod
-  def _limit_lines(text: str, max_lines: int = 999) -> str:
+  def _limit_lines(text: str, max_lines: int = 12) -> str:
     """Limite le texte à un nombre maximum de lignes."""
     lines = text.splitlines()
     return "\n".join(lines[:max_lines])
