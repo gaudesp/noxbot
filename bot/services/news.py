@@ -10,15 +10,6 @@ class NewsService():
     self.db = db
 
   async def get_news_by_steam_id(self, steam_id, format='full'):
-    """
-    Récupère les informations de la news du jeu à partir du steam_id.
-    
-    :param steam_id: Identifiant Steam du jeu.
-    :param format: Détermine le format des données retournées. 
-                   'full' pour toutes les informations formatées, 
-                   'id' pour juste le steam_id
-    :return: Les données demandées selon le format spécifié.
-    """
     news_for_game = await steam.get_game_news(steam_id)
     
     if not news_for_game or 'gid' not in news_for_game:

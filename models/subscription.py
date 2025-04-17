@@ -11,5 +11,5 @@ class Subscription(BaseModel):
     server_id = Column(Integer, ForeignKey('servers.id'), nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
-    server = relationship("Server", back_populates="subscriptions")  # Relation explicite avec `Server`
-    user = relationship("User", back_populates="subscriptions")  # Relation explicite avec `User`
+    server = relationship("Server", back_populates="subscriptions")
+    user = relationship("User", back_populates="subscriptions")

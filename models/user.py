@@ -9,4 +9,4 @@ class User(BaseModel):
     username = Column(String, nullable=False)
     disabled = Column(Boolean, default=False)
 
-    subscriptions = relationship("Subscription", back_populates="user")  # Relation explicite avec `Subscription`
+    subscriptions = relationship("Subscription", back_populates="user")

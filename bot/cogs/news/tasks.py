@@ -12,16 +12,12 @@ log = logger.get_logger(__name__)
 
 class NewsTask(commands.Cog):
   def __init__(self, bot: DiscordBot) -> None:
-    """Initialise la tâche pour vérifier les actualités."""
     self.bot = bot
     self.news_service = NewsService(bot.database)
     self.check_for_news.start()
 
   @tasks.loop(seconds=1800)
   async def check_for_news(self) -> None:
-    """
-    Vérifie périodiquement s'il y a de nouvelles actualités pour les jeux suivis par les serveurs Discord.
-    """
     log.info('Checking Steam news...')
     
     try:
@@ -81,9 +77,7 @@ class NewsTask(commands.Cog):
 
   @check_for_news.before_loop
   async def before_check_for_news(self) -> None:
-    """Attend que le bot soit prêt avant de démarrer la vérification des actualités."""
     await self.bot.wait_until_ready()
 
 async def setup(bot) -> None:
-  """Ajoute la tâche de vérification des actualités au bot."""
   await bot.add_cog(NewsTask(bot))
