@@ -1,5 +1,5 @@
-# NoxBot Discord Bot 🎮🔔
-NoxBot est un BOT Discord en Python utilisant **discord.py**, conçu pour suivre les news d'un jeu Steam et les publier dans un canal Discord choisi.
+# NoxBot 🎮🔔
+**NoxBot** est un BOT Discord développé en **Python** avec **Discord.py**, conçu pour suivre les news d'un jeu Steam et les publier dans un canal Discord choisi.
 
 ## ⚙️ Prérequis
 - **Python** (version : `3.12.0`)
@@ -41,5 +41,5 @@ python run_bot.py
 - `Pillow` : Traitement d’images (notamment pour la vérification des images Steam).
 - `requests` : Requêtes HTTP synchrones, utilisé dans certains traitements spécifiques.
 
-## Contribution 🤝
+## 🤝 Contribution
 Lead developer : [@gaudesp](https://github.com/gaudesp)
